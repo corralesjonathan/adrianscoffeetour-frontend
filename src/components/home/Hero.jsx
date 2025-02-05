@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "../../index.css";
 import { useAxios } from "../../hooks/useAxios";
 
@@ -7,10 +7,10 @@ export function Hero({ img }) {
 
   useEffect(() => {
     request("/adrianscoffeetour");
-  }, []);
+  }, [request]);
 
   return (
-    <div className="flex max-sm:flex-col w-[90vw] mt-[120px] m-auto p-[40px] max-sm:p-[20px] gap-[20px] bg-opacity-40 rounded-[20px] min-h-[500px] bg-adrians-beige">
+    <div className="flex max-sm:flex-col w-[90vw] mt-[120px] m-auto p-[40px] max-sm:p-[20px] gap-[20px] rounded-[20px] min-h-[500px] bg-adrians-beige/40">
       <div className="flex flex-col justify-center gap-[10px] w-[60%] max-sm:w-full">
         <h1 className="text-adrians-brown text-4xl max-sm:text-3xl font-light m-0 p-0 leading-tight">
           Welcome to

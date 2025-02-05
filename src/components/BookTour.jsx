@@ -3,10 +3,13 @@ import "../index.css";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { useAxios } from "../hooks/useAxios";
+import { useNavigate } from "react-router-dom";
 
 export function BookTour() {
   const { data: tourData, loading: tourLoading, error, request: tourRequest } = useAxios();
   const { data: datesData, loading: datesLoading, request: datesRequest } = useAxios();
+
+  const navigate = useNavigate();
 
   // API tours
   useEffect(() => {
@@ -81,24 +84,22 @@ export function BookTour() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!dateId) {
-      setAlertMessage("Please select a date.");
+  
+    if (!dateId || !scheduleId) {
+      setAlertMessage("Please complete all fields.");
       return;
     }
-
-    if (!scheduleId) {
-      setAlertMessage("Please select a schedule.");
-      return;
-    }
-
-    setLoading(true);
-
-    // Simulate form submission delay
-    setTimeout(() => {
-      // Submit form logic (you can use any AJAX/fetch here)
-      console.log("Form submitted");
-      setLoading(false);
-    }, 2500);
+  
+    const checkoutData = {
+      schedule_id: scheduleId,
+      adults: adults,
+      children: children,
+      subtotal: subtotal.toFixed(2),
+      taxes: taxes.toFixed(2),
+      total: total.toFixed(2),
+    };
+  
+    navigate("/checkout", { state: checkoutData });
   };
 
   const handleDateChange = (selectedDate) => {
@@ -156,6 +157,7 @@ export function BookTour() {
     setTaxes(taxesAmount);
     setTotal(totalAmount);
   };
+  
   return (
     <>
       <section className="flex flex-col w-[90vw] items-center justify-center py-[40px] m-auto gap-[20px]">
