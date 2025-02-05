@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {  
+  --color-adrians-red: #C92E17;
+  --color-adrians-brown: #37251C;
+  --color-adrians-beige: #F4E6DB;
+  --color-adrians-blue: #214594;
+  --color-adrians-green: #276E2F;
+  --color-adrians-yellow: #F5B71F;
+  --color-adrians-orange: #F07E2B;
+  --color-adrians-placeholder: #535353;
+
+  --font-secondary: 'Montserrat', sans-serif;
+  
+  --box-shadow-adrians-card-shadow: 0px 18px 50px rgba(0, 0, 0, 0.1);
+}
+
+:root {
+    font-family: 'Montserrat', sans-serif;
+}
+
+
+.available-date{
+  background-color: #C92E17 !important;
+  color: white !important;
+  
+}
+
+.available-date:hover{
+  opacity: 0.7 !important;
+}
+
+.unavailable-date{
+  opacity: 0.2 !important;
+  color: #535353 !important;
+}
+
+.loader {
+  width: 75px;
+  aspect-ratio: 1; 
+  display: grid;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  grid-area: 1/1;
+  width: 35px;
+  aspect-ratio: 1;
+  box-shadow: 0 0 0 3px #fff inset;
+  filter: drop-shadow(40px 40px 0 #fff);
+  animation: l8 2s infinite alternate;
+}
+.loader:after {
+  margin: 0 0 0 auto; 
+  filter: drop-shadow(-40px 40px 0 #fff);
+  animation-delay: -1s;
+}
+@keyframes l8 {
+  0%,10%   {border-radius:0}
+  30%,40%  {border-radius:50% 0}
+  60%,70%  {border-radius:50%}
+  90%,100% {border-radius:0 50%}
+}
