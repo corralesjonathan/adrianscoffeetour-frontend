@@ -12,7 +12,7 @@
 
   --font-secondary: 'Montserrat', sans-serif;
   
-  --box-shadow-adrians-card-shadow: 0px 18px 50px rgba(0, 0, 0, 0.1);
+  --drop-shadow-adrians-card-shadow: 0px 18px 50px rgba(0, 0, 0, 0.1);
 }
 
 :root {

@@ -92,6 +92,7 @@ export function BookTour() {
   
     const checkoutData = {
       schedule_id: scheduleId,
+      schedules: schedules,
       adults: adults,
       children: children,
       subtotal: subtotal.toFixed(2),
@@ -166,7 +167,7 @@ export function BookTour() {
         </h3>
 
         <form
-          className="flex flex-col gap-[40px] rounded-[20px] w-full bg-white shadow-adrians-card-shadow p-[40px] max-sm:p-[20px] md:p-[20px]"
+          className="flex flex-col gap-[40px] rounded-[20px] w-full bg-white drop-shadow-adrians-card-shadow p-[40px] max-sm:p-[20px] md:p-[40px]"
           onSubmit={handleSubmit}
         >
           <div className="grid grid-cols-4 gap-[40px] max-sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
