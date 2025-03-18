@@ -182,7 +182,7 @@ export function BookTour() {
                 <p className="text-lg font-semibold text-adrians-brown">Date</p>
               </div>
               <input
-                className="rounded-[10px] h-[60px] p-[10px] bg-white border-[0.5px] border-adrians-brown outline-none"
+                className="placeholder:text-black rounded-[10px] h-[60px] p-[10px] bg-white border-[0.5px] border-adrians-brown outline-none"
                 ref={inputRef}
                 type="text"
                 value={dateId}
@@ -237,7 +237,7 @@ export function BookTour() {
                 <button
                   type="button"
                   onClick={handleDecrementAdults}
-                  className="text-adrians-brown font-bold text-[20px] p-[10px] hover:bg-adrians-red hover:text-white transition rounded-[5px]"
+                  className="cursor-pointer text-adrians-brown font-bold text-[20px] p-[10px] hover:bg-adrians-red hover:text-white transition rounded-[5px]"
                 >
                   -
                 </button>
@@ -252,7 +252,7 @@ export function BookTour() {
                 <button
                   type="button"
                   onClick={handleIncrementAdults}
-                  className="text-adrians-brown font-bold text-[20px] p-[10px] hover:bg-adrians-red hover:text-white transition rounded-[5px]"
+                  className="cursor-pointer text-adrians-brown font-bold text-[20px] p-[10px] hover:bg-adrians-red hover:text-white transition rounded-[5px]"
                 >
                   +
                 </button>
@@ -285,12 +285,12 @@ export function BookTour() {
                   onChange={(e) => setChildren(parseInt(e.target.value))}
                   min={0}
                   required
-                  className="w-[50px] text-center outline-none text-adrians-brown font-semibold"
+                  className="cursor-pointer w-[50px] text-center outline-none text-adrians-brown font-semibold"
                 />
                 <button
                   type="button"
                   onClick={handleIncrementChildren}
-                  className="text-adrians-brown font-bold text-[20px] p-[10px] hover:bg-adrians-red hover:text-white transition rounded-[5px]"
+                  className="cursor-pointer text-adrians-brown font-bold text-[20px] p-[10px] hover:bg-adrians-red hover:text-white transition rounded-[5px]"
                 >
                   +
                 </button>
@@ -330,7 +330,7 @@ export function BookTour() {
 
           <button
             type="submit"
-            className="font-semibold text-[18px] bg-adrians-red text-white rounded-[10px] p-[10px] hover:translate-y-[-5px] transition duration-500 ease-out"
+            className="cursor-pointer font-semibold text-[18px] bg-adrians-red text-white rounded-[10px] p-[10px] hover:translate-y-[-5px] transition duration-500 ease-out"
           >
             {tourLoading ? "Redirecting to checkout…" : "Book now"}
           </button>
