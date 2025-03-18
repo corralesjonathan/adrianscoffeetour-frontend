@@ -19,6 +19,10 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+.construction-bg {
+  background-image: url('../public/imgs/hero_bg.jpeg');
+}
+
 
 .available-date{
   background-color: #C92E17 !important;
