@@ -1,8 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './index.css'
 import {Home} from "./pages/Home.jsx";
-import {Tour} from "./pages/Tour.jsx";
-import {Checkout} from "./pages/Checkout.jsx";
 import { UnderConstruction } from './pages/UnderConstruction.jsx';
 
 function App() {
@@ -10,7 +8,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<UnderConstruction />} />
+        <Route path="/under-construction" element={<UnderConstruction />} />
+        <Route path="/" element={<Home />} />        
       </Routes>
     </Router>
   )

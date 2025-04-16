@@ -11,8 +11,10 @@
   --color-adrians-placeholder: #535353;
 
   --font-secondary: 'Montserrat', sans-serif;
-  
-  --drop-shadow-adrians-card-shadow: 0px 18px 50px rgba(0, 0, 0, 0.1);
+
+  --shadow-adrians-btn-shadow: 0px 8px 28px rgba(201, 46, 23, 0.3);
+  --shadow-adrians-btn-shadow-hover: 0px 8px 28px rgba(201, 46, 23, 0.4);
+
 }
 
 :root {
