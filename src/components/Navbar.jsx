@@ -29,7 +29,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <nav className="navbar w-full flex fixed top-0 right-0 h-[100px] bg-white py-[20px]">
+    <nav className="z-50 w-full flex fixed top-0 right-0 h-[100px] bg-adrians-bg py-[20px]">
       <div className="w-[90vw] m-auto flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="text-xl font-bold" onClick={() => handleLinkClick("/")}>

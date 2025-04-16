@@ -8,8 +8,10 @@
   --color-adrians-green: #276E2F;
   --color-adrians-yellow: #F5B71F;
   --color-adrians-orange: #F07E2B;
+  --color-adrians-bg: #FDFCFB;
   --color-adrians-placeholder: #535353;
 
+  --font-primary: 'Bebas Neue', sans-serif;
   --font-secondary: 'Montserrat', sans-serif;
 
   --shadow-adrians-btn-shadow: 0px 8px 28px rgba(201, 46, 23, 0.3);
@@ -19,51 +21,10 @@
 
 :root {
     font-family: 'Montserrat', sans-serif;
+    background-color: var(--color-adrians-bg);
 }
 
 .construction-bg {
   background-image: url('../public/imgs/hero_bg.jpeg');
 }
 
-
-.available-date{
-  background-color: #C92E17 !important;
-  color: white !important;
-  
-}
-
-.available-date:hover{
-  opacity: 0.7 !important;
-}
-
-.unavailable-date{
-  opacity: 0.2 !important;
-  color: #535353 !important;
-}
-
-.loader {
-  width: 75px;
-  aspect-ratio: 1; 
-  display: grid;
-}
-.loader:before,
-.loader:after {
-  content: "";
-  grid-area: 1/1;
-  width: 35px;
-  aspect-ratio: 1;
-  box-shadow: 0 0 0 3px #fff inset;
-  filter: drop-shadow(40px 40px 0 #fff);
-  animation: l8 2s infinite alternate;
-}
-.loader:after {
-  margin: 0 0 0 auto; 
-  filter: drop-shadow(-40px 40px 0 #fff);
-  animation-delay: -1s;
-}
-@keyframes l8 {
-  0%,10%   {border-radius:0}
-  30%,40%  {border-radius:50% 0}
-  60%,70%  {border-radius:50%}
-  90%,100% {border-radius:0 50%}
-}
