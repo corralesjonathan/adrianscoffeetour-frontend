@@ -4,7 +4,8 @@ const features = [
         title: "A Tour for Everyone",
         description: "Personalized experience in Spanish or English, guided by coffee growing expert.",
         icon: "/icons/feature_1.svg",
-        color: "adrians-red"
+        image: "/imgs/feature_1.webp",
+        color: "#C92E17"
     },
 ];
 
