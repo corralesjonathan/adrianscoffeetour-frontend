@@ -32,11 +32,11 @@ export function UnderConstruction() {
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-center bg-cover construction-bg"
+      className="flex items-center justify-center min-h-screen bg-[url('./imgs/hero.webp')] bg-center bg-cover"
     >
-      <div className="flex items-center flex-col justify-center gap-5 bg-white/80 w-[40vw] max-sm:w-[90vw] h-[60vh] max-sm:h-fit p-10 rounded-4xl shadow-lg text-center">
+      <div className="flex items-center flex-col justify-center gap-8 bg-white/80 w-[40vw] max-sm:w-[90vw] h-[60vh] max-sm:h-fit p-10 rounded-4xl shadow-lg text-center">
         {/* Logo */}
-        <img src="./icons/logo.svg" alt="Adrian's Coffee Tour Logo" className="mx-auto w-[240px]" />
+        <img src="./imgs/logo.svg" alt="Adrian's Coffee Tour Logo" className="mx-auto w-[240px]" />
 
         {/* Message */}
         <div>
