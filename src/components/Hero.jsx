@@ -9,8 +9,8 @@ AOS.init();
 export function Hero({ img }) {
   return (
     <div className="
-      flex z-[2] relative w-[90vw] m-auto mt-[100px] px-[80px] py-[120px] rounded-[40px] bg-[url('/imgs/hero.webp')] bg-cover bg-no-repeat bg-center justify-start items-start flex-col gap-[20px] h-[600px]
-      max-sm:px-[20px] max-sm:py-[80px] max-sm:justify-start
+      flex z-[2] relative w-[80vw] m-auto mt-[120px] px-[80px] py-[120px] rounded-[40px] bg-[url('/imgs/hero.webp')] bg-cover bg-no-repeat bg-center justify-start items-start flex-col gap-[20px] h-[600px]
+      max-sm:px-[20px] max-sm:py-[80px] max-sm:justify-start max-sm:w-[90vw] max-sm:mt-[100px]
       ">
       {/* Content */}
       <h1 

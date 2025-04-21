@@ -8,8 +8,9 @@ export function Navbar() {
   const [activeLink, setActiveLink] = useState("/");
   const links = [
     { name: "Home", route: "/" },
-    { name: "About", route: "/about" },
-    { name: "Services", route: "/services" },
+    { name: "Our Tour", route: "/tour" },
+    { name: "About us", route: "/about" },
+    { name: "Products", route: "/products" },
     { name: "Contact", route: "/contact" },
   ]
 
@@ -30,7 +31,10 @@ export function Navbar() {
 
   return (
     <nav className="z-50 w-full flex fixed top-0 right-0 h-[100px] bg-adrians-bg py-[20px]">
-      <div className="w-[90vw] m-auto flex justify-between items-center">
+      <div 
+      className="w-[80vw] m-auto flex justify-between items-center
+      max-sm:w-[90vw]
+      ">
         {/* Logo */}
         <Link to="/" className="text-xl font-bold" onClick={() => handleLinkClick("/")}>
           <img className="w-[200px] max-sm:w-[140px]" src="./imgs/logo.svg" alt="Logo" />
@@ -50,7 +54,6 @@ export function Navbar() {
             </li>
           ))}
         </ul>
-
 
         {/* Book Now Button */}
         <div className="max-sm:hidden">

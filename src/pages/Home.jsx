@@ -13,7 +13,7 @@ export function Home() {
         <>   
             <Navbar />
             <Hero />
-            {/* <Features />*/}
+            <Features />
         </>
     )
 }
