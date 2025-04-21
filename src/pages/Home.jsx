@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Navbar } from "../components/Navbar.jsx"
 import { Hero } from "../components/Hero.jsx"
+import { Features } from "../components/Features.jsx"
 
 
 export function Home() {
@@ -12,6 +13,7 @@ export function Home() {
         <>   
             <Navbar />
             <Hero />
+            {/* <Features />*/}
         </>
     )
 }
