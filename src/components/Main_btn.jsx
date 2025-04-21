@@ -1,5 +1,3 @@
-import Aos from "aos";
-import "aos/dist/aos.css";
 
 export function Main_btn( {text, } ) {
     return (

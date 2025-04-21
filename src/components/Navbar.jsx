@@ -80,13 +80,14 @@ export function Navbar() {
           id="mobile-menu"
           className={`
           lg:hidden
-          flex fixed h-screen top-0 right-0 mt-[100px] py-[40px] z-[-1] w-full bg-white flex-col justify-start items-center text-center gap-[20px]"
+          flex fixed h-screen top-0 right-0 mt-[100px] py-[40px] z-[-1] w-full bg-adrians-bg flex-col justify-start items-center text-center gap-[20px]"
           transition-all duration-500 ease-in-out
-          ${isOpen ? 'opacity-100 translate-y-0 max-h-100 gap-[20px]' : 'opacity-0 translate-y-[-300px] max-h-0 gap-[20px]'}
+          ${isOpen ? 'opacity-100 translate-y-0 gap-[20px]' : 'opacity-0 translate-y-[-300px] gap-[20px]'}
           `}
         >
           {/* Navigation links */}
           {links.map((link) => (
+            <>
             <li
               key={link.name}
               className={`list-none text-adrians-brown font-regular text-[16px] uppercase transition-all duration-200 ease-in-out hover:text-adrians-red ${activeLink === link.route ? "text-adrians-red" : ""
@@ -96,6 +97,7 @@ export function Navbar() {
                 {link.name}
               </Link>
             </li>
+            </>
           ))}
 
           {/* Book Now Button */}
