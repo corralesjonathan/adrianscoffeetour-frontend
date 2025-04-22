@@ -1,46 +1,64 @@
 import features from "../data/features.js";
 import { Secondary_btn } from "./Secondary_btn.jsx";
-import AOS from "aos";
-import "aos/dist/aos.css";
 
 export function Features() {
   return (
     <div
-      className="flex flex-col mt-[120px] py-[40px] w-[80vw] m-auto justify-center items-center gap-[60px]
-        max-sm:mt-[540px] max-xl:w-[90vw] max-xl:mt-[300px]
-        "
+      className="
+        flex flex-col justify-center items-center gap-[60px] 
+        w-[80vw] m-auto mt-[120px] py-[40px]
+        max-xl:w-[90vw] max-xl:mt-[300px]
+        max-sm:gap-[40px] max-sm:mt-[540px]
+      "
     >
       {/* Title */}
       <div className="flex flex-col items-center">
-        <h1 data-aos="fade-up" data-aos-once="true" data-aos-duration="1000" className="text-[40px] font-primary font-regular text-adrians-brown">
+        <h1
+          className="text-[40px] font-primary font-regular text-adrians-brown"
+          data-aos="fade-up"
+          data-aos-once="true"
+          data-aos-duration="1000"
+        >
           Discover Our Tour
         </h1>
-        <span data-aos="fade-up" data-aos-once="true" data-aos-duration="1000" data-aos-delay="200" className="w-[160px] h-[3px] bg-adrians-red block rounded-full"></span>
+        <span
+          className="w-[160px] h-[3px] bg-adrians-red block rounded-full"
+          data-aos="fade-up"
+          data-aos-once="true"
+          data-aos-duration="1000"
+          data-aos-delay="200"
+        ></span>
       </div>
 
       {/* Features */}
       <div
-        className="grid grid-cols-3 gap-[40px]
-            max-sm:grid-cols-1 max-lg:grid-cols-2
-            "
+        className="
+          grid grid-cols-3 gap-[40px]
+          max-lg:grid-cols-2
+          max-sm:grid-cols-1
+        "
       >
         {features.map((feature, index) => (
           <div
+            key={index}
+            className="
+              bg-white w-full rounded-[20px] shadow-adrians-vertical-card 
+              pt-[60px] pb-[40px] px-[20px] mt-[20px] 
+              flex flex-col items-start gap-[20px] relative
+            "
             data-aos="zoom-in"
             data-aos-once="true"
             data-aos-duration="1000"
             data-aos-delay={index * 200}
-            key={index}
-            className="bg-white w-full shadow-adrians-vertical-card rounded-[20px] mt-[20px] pt-[60px] pb-[40px] px-[20px] gap-[20px] flex relative flex-col items-start"
           >
             <img
-              className="absolute top-0 left-0 -translate-y-12"
               src={feature.icon}
               alt={feature.title}
+              className="absolute top-0 left-0 -translate-y-12"
             />
             <h3
-              style={{ color: feature.color }}
               className="text-[20px] font-semibold"
+              style={{ color: feature.color }}
             >
               {feature.title}
             </h3>
