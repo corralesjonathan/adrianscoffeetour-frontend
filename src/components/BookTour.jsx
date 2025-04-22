@@ -10,8 +10,8 @@ export function BookTour() {
         data-aos="fade-right"
         data-aos-duration="1000"
         data-aos-once="true"
-        className="grid grid-cols-5 gap-[20px] absolute top-[100%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[70vw] h-fit p-[40px] rounded-[20px] bg-white shadow-adrians-horizontal-card
-        lg:grid-cols-2 md:grid-cols-2 max-sm:p-[20px] max-sm:grid-cols-1 max-sm:top-[120%] max-sm:w-[80vw]
+        className="grid grid-cols-5 gap-[20px] w-[90%] absolute top-[85%] h-fit p-[40px] rounded-[20px] bg-white shadow-adrians-horizontal-card
+        max-sm:p-[20px] max-sm:grid-cols-1 max-sm:w-[80vw] max-xl:grid-cols-2
         ">
             {/* Calendar */}
             <div className="flex flex-col gap-[20px] w-full justify-center items-center">
@@ -37,10 +37,10 @@ export function BookTour() {
                     <img src="./icons/adults.svg" alt="Adults" />
                     <h3 className="text-[20px] font-semibold text-adrians-brown">Adults</h3>
                 </div>
-                <div className="w-full flex justify-between items-center border-[0.5px] border-adrians-brown rounded-full p-[10px]">
+                <div className="flex items-center justify-between p-[10px] w-full border-[0.5px] border-adrians-brown rounded-full">
                     {/*  Minus */}
                     <Minus_btn onclick={""} />
-                    <input className="outline-none text-[14px] font-light placeholder:text-[14px] placeholder:font-light text-center no-spinner" type="number" value="2"/>
+                    <input className="outline-none w-full text-[14px] font-light placeholder:text-[14px] placeholder:font-light text-center no-spinner" type="number" value="2"/>
                     {/*  Plus */}
                     <Plus_btn onclick={""} />          
                 </div>
@@ -56,17 +56,19 @@ export function BookTour() {
                     </button>
                     <Tooltip  anchorSelect=".element" content="Children under 12 years old." place="bottom" />
                 </div>
-                <div className="w-full flex justify-between items-center border-[0.5px] border-adrians-brown rounded-full p-[10px]">
+                <div className="flex items-center justify-between p-[10px] w-full border-[0.5px] border-adrians-brown rounded-full">
                     {/*  Minus */}
                     <Minus_btn onclick={""} />
-                    <input className="outline-none text-[14px] font-light placeholder:text-[14px] placeholder:font-light text-center no-spinner" type="number" value="0"/>
+                    <input className="outline-none w-full text-[14px] font-light placeholder:text-[14px] placeholder:font-light text-center no-spinner" type="number" value="0"/>
                     {/*  Plus */}
                     <Plus_btn onclick={""} />          
                 </div>
             </div>
 
             {/* Book Button */}
-            <div className="flex flex-col gap-[20px] w-full justify-center items-center">
+            <div className="flex w-full justify-center items-center
+            max-sm:col-span-1 max-sm:mt-[20px] max-sm:mb-[20px] max-xl:col-span-2 max-xl:mt-[20px]
+            ">
                 <Book_btn text={"Book Now"} />
             </div>
 

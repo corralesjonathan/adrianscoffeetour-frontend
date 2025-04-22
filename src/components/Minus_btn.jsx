@@ -4,7 +4,7 @@ export function Minus_btn( {onclick} ) {
         <>
                 <span
                     onClick={onclick}
-                    className="cursor-pointer group flex justify-center items-center border-adrians-red border-[1px] rounded-full w-[22px] h-[22px]
+                    className="cursor-pointer group flex justify-center items-center border-adrians-red border-[1px] rounded-full w-[18px] h-[18px]
                     hover:bg-adrians-red
                     transition-all duration-300 ease-in-out
                     ">

@@ -1,38 +1,58 @@
-import features from "../data/features.js"
-import { Link } from "react-router-dom"
-import { Secondary_btn } from "./Secondary_btn.jsx"
+import features from "../data/features.js";
+import { Secondary_btn } from "./Secondary_btn.jsx";
+import AOS from "aos";
+import "aos/dist/aos.css";
+
 export function Features() {
-    return (
-        <div 
-        className="flex flex-col mt-[120px] py-[40px] w-[80vw] m-auto justify-center items-center gap-[60px]
-        max-sm:mt-[420px] max-sm:w-[90vw]
-        ">
-            {/* Title */}
-            <div className="flex flex-col items-center">
-                <h1 className="text-[40px] font-primary font-regular text-adrians-brown">Discover Our Tour</h1>
-                <span className="w-[160px] h-[3px] bg-adrians-red block rounded-full"></span>
-            </div>
+  return (
+    <div
+      className="flex flex-col mt-[120px] py-[40px] w-[80vw] m-auto justify-center items-center gap-[60px]
+        max-sm:mt-[540px] max-xl:w-[90vw] max-xl:mt-[300px]
+        "
+    >
+      {/* Title */}
+      <div className="flex flex-col items-center">
+        <h1 data-aos="fade-up" data-aos-once="true" data-aos-duration="1000" className="text-[40px] font-primary font-regular text-adrians-brown">
+          Discover Our Tour
+        </h1>
+        <span data-aos="fade-up" data-aos-once="true" data-aos-duration="1000" data-aos-delay="200" className="w-[160px] h-[3px] bg-adrians-red block rounded-full"></span>
+      </div>
 
-            {/* Features */}
-            <div 
-            className="grid grid-cols-3 gap-[40px]
-            max-sm:grid-cols-1
-            ">
-                {features.map((feature, index) => (
-                    <div
-                        key={index}
-                        className="bg-white w-full shadow-adrians-vertical-card rounded-[20px] mt-[20px] pt-[60px] pb-[40px] px-[20px] gap-[20px] flex relative flex-col items-start"
-                    >
-                        <img className="absolute top-0 left-0 -translate-y-12" src={feature.icon} alt={feature.title} />
-                        <h3 style={{color: feature.color}} className="text-[20px] font-semibold">{feature.title}</h3>
-                        <p className="text-[16px] font-light text-adrians-brown">{feature.description}</p>
-                    </div>
-                ))}
-            </div>
-            
-           {/* CTA Button */}
-           <Secondary_btn text="See more" link="/tour" />
-        </div>
-    )
+      {/* Features */}
+      <div
+        className="grid grid-cols-3 gap-[40px]
+            max-sm:grid-cols-1 max-lg:grid-cols-2
+            "
+      >
+        {features.map((feature, index) => (
+          <div
+            data-aos="zoom-in"
+            data-aos-once="true"
+            data-aos-duration="1000"
+            data-aos-delay={index * 200}
+            key={index}
+            className="bg-white w-full shadow-adrians-vertical-card rounded-[20px] mt-[20px] pt-[60px] pb-[40px] px-[20px] gap-[20px] flex relative flex-col items-start"
+          >
+            <img
+              className="absolute top-0 left-0 -translate-y-12"
+              src={feature.icon}
+              alt={feature.title}
+            />
+            <h3
+              style={{ color: feature.color }}
+              className="text-[20px] font-semibold"
+            >
+              {feature.title}
+            </h3>
+            <p className="text-[16px] font-light text-adrians-brown">
+              {feature.description}
+            </p>
+          </div>
+        ))}
+      </div>
 
+      {/* CTA Button */}
+      <Secondary_btn text="See more" link="/tour" />
+    </div>
+  );
 }

@@ -9,27 +9,29 @@ AOS.init();
 export function Hero({ img }) {
   return (
     <div className="
-      flex z-[2] relative w-[80vw] m-auto mt-[120px] px-[80px] py-[120px] rounded-[40px] bg-[url('/imgs/hero.webp')] bg-cover bg-no-repeat bg-center justify-start items-start flex-col gap-[20px] h-[600px]
-      max-sm:px-[20px] max-sm:py-[80px] max-sm:justify-start max-sm:w-[90vw] max-sm:mt-[100px] max-md:w-[90vw] max-lg:w-[90vw] max-xl:w-[90vw]
+      flex items-center justify-start z-[2] relative w-[80vw] m-auto mt-[120px] px-[80px] py-[120px] rounded-[40px] bg-[url('/imgs/hero.webp')] bg-cover bg-no-repeat bg-center flex-col gap-[20px] h-fit
+      max-sm:px-[20px] max-xl:px-[40px] max-xl:w-[90vw] 
       ">
       {/* Content */}
-      <h1 
-        data-aos="fade-up"
-        data-aos-duration="1000"
-        data-aos-once="true"
-        className="text-[96px] text-white font-primary leading-[96px]
-        max-sm:text-[60px] max-sm:leading-[60px]
-        ">Experience the <br/> Essence of Coffee
-      </h1>
-      <p
-        data-aos="fade-up"
-        data-aos-delay="300"
-        data-aos-once="true"
-        data-aos-duration="1000"
-        className="text-[20px] text-white font-medium´
-        max-sm:text-[16px]
-        ">Follow every step of the coffee journey, from the plantations to the perfect cup.
-      </p>
+      <div className="flex flex-col w-full gap-[20px]">
+        <h1 
+          data-aos="fade-up"
+          data-aos-duration="1000"
+          data-aos-once="true"
+          className="text-[96px] text-white font-primary leading-[96px]
+          max-sm:text-[60px] max-sm:leading-[60px]
+          ">Experience the <br/> Essence of Coffee
+        </h1>
+        <p
+          data-aos="fade-up"
+          data-aos-delay="300"
+          data-aos-once="true"
+          data-aos-duration="1000"
+          className="text-[20px] text-white font-medium´
+          max-sm:text-[16px]
+          ">Follow every step of the coffee journey, from the plantations to the perfect cup.
+        </p>
+      </div>
 
       {/* CTA Buttons */}
       <div
