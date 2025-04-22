@@ -86,8 +86,8 @@ export function Navbar() {
           className={`
             
           flex fixed h-screen top-0 right-0 mt-[100px] py-[40px] z-[-1] w-full bg-adrians-bg flex-col justify-start items-center text-center gap-[20px]"
-          transition-all duration-500 ease-in-out xl:hidden
-          ${isOpen ? 'opacity-100 translate-y-0 gap-[20px]' : 'opacity-0 translate-y-[-300px] gap-[20px]'}
+          transition-all duration-500 ease-in-out
+          ${isOpen ? 'flex opacity-100 translate-y-0 gap-[20px]' : 'hidden opacity-0 translate-y-[-300px] gap-[20px]'}
           `}
         >
           {/* Navigation links */}
