@@ -39,7 +39,7 @@ export function Features() {
             <img
               src={feature.icon}
               alt={feature.title}
-              className="absolute top-0 left-0 -translate-y-12"
+              className="float-animation absolute top-0 left-0 -translate-y-12"
             />
             <h3
               className="text-[20px] font-semibold"
