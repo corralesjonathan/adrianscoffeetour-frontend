@@ -11,7 +11,7 @@ export function BookTour() {
         data-aos-duration="1000"
         data-aos-once="true"
         className="grid grid-cols-5 gap-[20px] absolute top-[100%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[70vw] h-fit p-[40px] rounded-[20px] bg-white shadow-adrians-horizontal-card
-        max-sm:p-[20px] max-sm:grid-cols-1 max-sm:top-[120%] max-sm:w-[80vw]
+        lg:grid-cols-2 md:grid-cols-2 max-sm:p-[20px] max-sm:grid-cols-1 max-sm:top-[120%] max-sm:w-[80vw]
         ">
             {/* Calendar */}
             <div className="flex flex-col gap-[20px] w-full justify-center items-center">

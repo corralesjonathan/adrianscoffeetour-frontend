@@ -33,7 +33,7 @@ export function Navbar() {
     <nav className="z-50 w-full flex fixed top-0 right-0 h-[100px] bg-adrians-bg py-[20px]">
       <div 
       className="w-[80vw] m-auto flex justify-between items-center
-      max-sm:w-[90vw]
+      max-sm:w-[90vw] max-md:w-[90vw] max-lg:w-[90vw] max-xl:w-[90vw]
       ">
         {/* Logo */}
         <Link to="/" className="text-xl font-bold" onClick={() => handleLinkClick("/")}>
@@ -41,7 +41,7 @@ export function Navbar() {
         </Link>
 
         {/* Navigation links */}
-        <ul className="flex space-x-[20px] max-sm:hidden max-md:hidden">
+        <ul className="flex space-x-[20px] max-sm:hidden max-md:hidden max-lg:hidden max-xl:hidden">
           {links.map((link) => (
             <li
               key={link.name}
@@ -56,12 +56,12 @@ export function Navbar() {
         </ul>
 
         {/* Book Now Button */}
-        <div className="max-sm:hidden">
+        <div className="max-sm:hidden max-md:hidden max-lg:hidden max-xl:hidden">
           <Main_btn text={"Book Now"} />
         </div>
         
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="xl:hidden 2xl:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className={`relative text-adrians-red  
@@ -82,7 +82,7 @@ export function Navbar() {
         <div
           id="mobile-menu"
           className={`
-          lg:hidden
+            
           flex fixed h-screen top-0 right-0 mt-[100px] py-[40px] z-[-1] w-full bg-adrians-bg flex-col justify-start items-center text-center gap-[20px]"
           transition-all duration-500 ease-in-out
           ${isOpen ? 'opacity-100 translate-y-0 gap-[20px]' : 'opacity-0 translate-y-[-300px] gap-[20px]'}

@@ -21,11 +21,11 @@ export function Features() {
                 {features.map((feature, index) => (
                     <div
                         key={index}
-                        className="bg-white shadow-adrians-vertical-card rounded-[20px] mt-[20px] pt-[60px] pb-[20px] px-[20px] gap-[20px] flex relative flex-col items-start"
+                        className="bg-white w-full shadow-adrians-vertical-card rounded-[20px] mt-[20px] pt-[60px] pb-[40px] px-[20px] gap-[20px] flex relative flex-col items-start"
                     >
                         <img className="absolute top-0 left-0 -translate-y-12" src={feature.icon} alt={feature.title} />
                         <h3 style={{color: feature.color}} className="text-[20px] font-semibold">{feature.title}</h3>
-                        <p className="text-[16px] font-light text-adrians-brown h-[60px]">{feature.description}</p>
+                        <p className="text-[16px] font-light text-adrians-brown">{feature.description}</p>
                     </div>
                 ))}
             </div>
