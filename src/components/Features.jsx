@@ -1,5 +1,6 @@
 import features from "../data/features.js";
 import { Secondary_btn } from "./Secondary_btn.jsx";
+import { SectionTitle } from "./SectionTitle.jsx";
 
 export function Features() {
   return (
@@ -12,23 +13,7 @@ export function Features() {
       "
     >
       {/* Title */}
-      <div className="flex flex-col items-center">
-        <h1
-          className="text-[40px] font-primary font-regular text-adrians-brown"
-          data-aos="fade-up"
-          data-aos-once="true"
-          data-aos-duration="1000"
-        >
-          Discover Our Tour
-        </h1>
-        <span
-          className="w-[160px] h-[3px] bg-adrians-red block rounded-full"
-          data-aos="fade-up"
-          data-aos-once="true"
-          data-aos-duration="1000"
-          data-aos-delay="200"
-        ></span>
-      </div>
+      <SectionTitle text="Discover Our Tour" position="items-center" />
 
       {/* Features */}
       <div

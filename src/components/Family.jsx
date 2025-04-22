@@ -1,4 +1,5 @@
 import { Secondary_btn } from "./Secondary_btn.jsx";
+import { SectionTitle } from "./SectionTitle.jsx";
 
 export function Family() {
     return (
@@ -32,24 +33,7 @@ export function Family() {
                 "
             >
                 {/* Title */}
-                <div className="flex flex-col items-start">
-                    <h1
-                        className="text-[40px] font-primary font-regular text-adrians-brown"
-                        data-aos="fade-up"
-                        data-aos-once="true"
-                        data-aos-duration="1000"
-                    >
-                        OUR FAMILY HISTORY
-                    </h1>
-
-                    <span
-                        className="w-[160px] h-[3px] bg-adrians-red block rounded-full"
-                        data-aos="fade-up"
-                        data-aos-once="true"
-                        data-aos-duration="1000"
-                        data-aos-delay="200"
-                    ></span>
-                </div>
+                <SectionTitle text="Our Family History" position={"items-start"}/>
 
                 {/* Text */}
                 <p
