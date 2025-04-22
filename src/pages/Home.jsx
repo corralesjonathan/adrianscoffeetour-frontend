@@ -3,6 +3,7 @@ import { Navbar } from "../components/Navbar.jsx"
 import { Hero } from "../components/Hero.jsx"
 import { Features } from "../components/Features.jsx"
 import { Family } from "../components/Family.jsx"
+import { Counter } from "../components/Counter.jsx";
 
 
 export function Home() {
@@ -16,6 +17,7 @@ export function Home() {
             <Hero />
             <Features />
             <Family />
+            <Counter />
         </>
     )
 }

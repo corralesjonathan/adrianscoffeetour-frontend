@@ -1,7 +1,5 @@
 export function SectionTitle( {text, position} ) {
     return (
-        <>
-            {/* Title */}
             <div className={`flex flex-col ${position}`}>
                 <h1
                 className="text-[40px] font-primary font-regular text-adrians-brown"
@@ -19,6 +17,5 @@ export function SectionTitle( {text, position} ) {
                 data-aos-delay="200"
                 ></span>
             </div>
-        </>
     )
 }
