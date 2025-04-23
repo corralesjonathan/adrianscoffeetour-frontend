@@ -6,6 +6,7 @@ import { Family } from "../components/Family.jsx"
 import { Counter } from "../components/Counter.jsx";
 import { Products } from "../components/Products.jsx";
 import { TourGallery } from "../components/TourGallery.jsx";
+import { Testimonials } from "../components/Testimonials.jsx";
 
 
 export function Home() {
@@ -22,6 +23,7 @@ export function Home() {
             <Counter />
             <Products />
             <TourGallery />
+            <Testimonials />
         </>
     )
 }
