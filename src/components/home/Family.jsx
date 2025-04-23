@@ -1,5 +1,5 @@
-import { Secondary_btn } from "./Secondary_btn.jsx";
-import { SectionTitle } from "./SectionTitle.jsx";
+import { Secondary_btn } from "../navigation/Secondary_btn.jsx";
+import { SectionTitle } from "../shared/SectionTitle.jsx";
 
 export function Family() {
     return (

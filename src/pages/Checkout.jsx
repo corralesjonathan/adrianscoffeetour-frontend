@@ -22,7 +22,6 @@ export function Checkout() {
         <p>Taxes: ${checkoutData.taxes}</p>
         <p>Total: ${checkoutData.total}</p>
       </div>
-
     </>
   );
 }

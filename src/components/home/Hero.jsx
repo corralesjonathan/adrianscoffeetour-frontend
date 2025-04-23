@@ -1,5 +1,5 @@
 import { FaRegCirclePlay } from "react-icons/fa6";
-import { BookTour } from "./BookTour.jsx";
+import { BookTour } from "../shared/BookTour.jsx";
 import { Link } from "react-router-dom";
 
 export function Hero({ img }) {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SectionTitle } from "./SectionTitle";
-import testimonials from "../data/testimonials.js";
+import { SectionTitle } from "../shared/SectionTitle.jsx";
+import testimonials from "../../data/testimonials.js";
 
 export function Testimonials() {
     const [currentIndex, setCurrentIndex] = useState(0);

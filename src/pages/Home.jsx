@@ -1,14 +1,14 @@
 import { useEffect } from "react";
-import { Navbar } from "../components/Navbar.jsx"
-import { Hero } from "../components/Hero.jsx"
-import { Features } from "../components/Features.jsx"
-import { Family } from "../components/Family.jsx"
-import { Counter } from "../components/Counter.jsx";
-import { Products } from "../components/Products.jsx";
-import { TourGallery } from "../components/TourGallery.jsx";
-import { Testimonials } from "../components/Testimonials.jsx";
-import { Newsletter } from "../components/Newsletter.jsx";
-import { Footer } from "../components/Footer.jsx";
+import { Navbar } from "../components/navigation/Navbar.jsx"
+import { Hero } from "../components/home/Hero.jsx"
+import { Features } from "../components/home/Features.jsx"
+import { Family } from "../components/home/Family.jsx"
+import { Counter } from "../components/home/Counter.jsx";
+import { Products } from "../components/home/Products.jsx";
+import { TourGallery } from "../components/home/TourGallery.jsx";
+import { Testimonials } from "../components/home/Testimonials.jsx";
+import { Newsletter } from "../components/home/Newsletter.jsx";
+import { Footer } from "../components/shared/Footer.jsx";
 
 
 export function Home() {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import highlights from "../data/highlights"
+import highlights from "../../data/highlights"
 
 export function Counter() {
   const [counts, setCounts] = useState(highlights.map(() => 0))

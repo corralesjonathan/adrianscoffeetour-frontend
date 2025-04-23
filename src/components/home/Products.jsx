@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { SectionTitle } from "./SectionTitle.jsx";
-import { Secondary_btn } from "./Secondary_btn.jsx";
-import products from "../data/products.js";
+import { SectionTitle } from "../shared/SectionTitle.jsx";
+import { Secondary_btn } from "../navigation/Secondary_btn.jsx";
+import products from "../../data/products.js";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

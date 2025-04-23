@@ -1,4 +1,4 @@
-import { SectionTitle } from "./SectionTitle"
+import { SectionTitle } from "../shared/SectionTitle"
 
 export function TourGallery() {
     return (

@@ -1,12 +1,12 @@
-import { Book_btn } from "./Book_btn";
+import { Book_btn } from "../navigation/Book_btn";
 import { Tooltip } from "react-tooltip";
-import { Plus_btn } from "./Plus_btn";
-import { Minus_btn } from "./Minus_btn";
-import "react-tooltip/dist/react-tooltip.css";
+import { Plus_btn } from "../navigation/Plus_btn";
+import { Minus_btn } from "../navigation/Minus_btn";
 import { useState, useEffect, useRef } from "react";
-import { DayPicker } from "react-day-picker";
-import "react-day-picker/style.css";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import { CalendarPicker } from "./CalendarPicker.jsx";
+
+import "react-tooltip/dist/react-tooltip.css";
 
 export function BookTour() {
   
@@ -20,21 +20,7 @@ export function BookTour() {
     const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   });
-
-  // Esta función deshabilita cualquier fecha que NO esté en availableDates
-  const isDisabled = (date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalizamos la hora para evitar errores con zonas horarias
   
-    return (
-      date < today || // Deshabilita fechas anteriores a hoy
-      !availableDates.some(available =>
-        available.toDateString() === date.toDateString()
-      )
-    );
-  };
-
-  // Cerrar el calendario si se hace clic fuera
   useEffect(() => {
     function handleClickOutside(event) {
       if (calendarRef.current && !calendarRef.current.contains(event.target)) {
@@ -76,47 +62,17 @@ export function BookTour() {
             outline-none
           "
         />
-          {/* Calendario flotante */}
+          {/* Calendar Picker */}
           <AnimatePresence>
-          {showCalendar && (
-            <motion.div
-              ref={calendarRef}
-              className="absolute top-[100px] left-0 z-50 p-[20px] bg-white rounded-[20px] shadow-adrians-vertical-card"
-              initial={{ opacity: 0, scale: 0.9, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -10 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
-            >
-              <DayPicker
-                mode="single"
-                classNames={{
-                  today: "text-adrians-red",
-                  selected: "bg-adrians-red text-white rounded-full",
-                  day: "text-adrians-brown rounded-full hover:bg-adrians-red/10 hover:text-adrians-red transition-all duration-300 ease-in-out",
-                  caption_label: "font-secondary font-regular text-adrians-red",
-                  chevron: "fill-adrians-red hover:fill-adrians-red/70 transition-all duration-300 ease-in-out",
-                }}
-                selected={selected}
-                onSelect={(date) => {
-                  setSelected(date);
-                  setShowCalendar(false); // Oculta al seleccionar
-                }}
-                available={availableDates}
-                disabled={isDisabled}
-                footer={
-                  <div className="flex justify-end">
-                    <button
-                      className="cursor-pointer px-4 py-2 text-white bg-adrians-red rounded-full"
-                      onClick={() => setShowCalendar(false)}
-                    >
-                      Close
-                    </button>
-                  </div>
-                }
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            <CalendarPicker
+              selected={selected}
+              setSelected={setSelected}
+              availableDates={availableDates}
+              showCalendar={showCalendar}
+              setShowCalendar={setShowCalendar}
+              calendarRef={calendarRef}
+            />
+          </AnimatePresence>
       </div>
 
       {/* Schedule */}
