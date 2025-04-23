@@ -4,6 +4,8 @@ import { Hero } from "../components/Hero.jsx"
 import { Features } from "../components/Features.jsx"
 import { Family } from "../components/Family.jsx"
 import { Counter } from "../components/Counter.jsx";
+import { Products } from "../components/Products.jsx";
+import { TourGallery } from "../components/TourGallery.jsx";
 
 
 export function Home() {
@@ -18,6 +20,8 @@ export function Home() {
             <Features />
             <Family />
             <Counter />
+            <Products />
+            <TourGallery />
         </>
     )
 }
