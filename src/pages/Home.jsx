@@ -7,6 +7,8 @@ import { Counter } from "../components/Counter.jsx";
 import { Products } from "../components/Products.jsx";
 import { TourGallery } from "../components/TourGallery.jsx";
 import { Testimonials } from "../components/Testimonials.jsx";
+import { Newsletter } from "../components/Newsletter.jsx";
+import { Footer } from "../components/Footer.jsx";
 
 
 export function Home() {
@@ -24,6 +26,8 @@ export function Home() {
             <Products />
             <TourGallery />
             <Testimonials />
+            <Newsletter />
+            <Footer />
         </>
     )
 }
