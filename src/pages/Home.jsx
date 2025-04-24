@@ -7,7 +7,6 @@ import { Counter } from "../components/home/Counter.jsx";
 import { Products } from "../components/home/Products.jsx";
 import { TourGallery } from "../components/home/TourGallery.jsx";
 import { Testimonials } from "../components/home/Testimonials.jsx";
-import { Newsletter } from "../components/home/Newsletter.jsx";
 import { Footer } from "../components/shared/Footer.jsx";
 
 
@@ -26,7 +25,6 @@ export function Home() {
             <Products />
             <TourGallery />
             <Testimonials />
-            <Newsletter />
             <Footer />
         </>
     )
