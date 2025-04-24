@@ -3,8 +3,8 @@ import { Tooltip } from "react-tooltip";
 import { Plus_btn } from "../navigation/Plus_btn";
 import { Minus_btn } from "../navigation/Minus_btn";
 import { useState, useEffect, useRef } from "react";
-import { AnimatePresence } from "framer-motion";
 import { CalendarPicker } from "./CalendarPicker.jsx";
+import { motion, AnimatePresence } from "framer-motion";
 
 const schedules = [
   { id: 1, time: "9:00 AM to 11:30 AM", unavailable: false },
@@ -12,11 +12,6 @@ const schedules = [
 ];
 
 export function BookTour() {
-  /** Schedule */
-  const [selectedSchedule, setSelectedSchedule] = useState(null);
-  const [openSchedule, setOpenSchedule] = useState(false);
-  const scheduleRef = useRef(null);
-
   /** DayPicker */
   const [selected, setSelected] = useState();
   const [showCalendar, setShowCalendar] = useState(false);
@@ -42,6 +37,40 @@ export function BookTour() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  
+  /** Schedule */
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [openSchedule, setOpenSchedule] = useState(false);
+  const scheduleRef = useRef(null);
+
+  /** Adults & Children */
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+  const [maxPeople, setMaxPeople] = useState(20);
+
+  const handleIncrementAdults = () => {
+    if (adults + children < maxPeople) {
+      setAdults(adults + 1);
+    }
+  };
+
+  const handleIncrementChildren = () => {
+    if (adults + children < maxPeople) {
+      setChildren(children + 1);
+    }
+  };
+
+  const handleDecrementAdults = () => {
+    if (adults > 2) {
+      setAdults(adults - 1);
+    }
+  };
+
+  const handleDecrementChildren = () => {
+    if (children > 0) {
+      setChildren(children - 1);
+    }
+  };
 
   return (
     <div
@@ -118,24 +147,32 @@ export function BookTour() {
         </div>
 
         {/* Options */}
-        {openSchedule && (
-          <div className="absolute p-[10px] top-[100px] left-0 w-full bg-white rounded-[10px] shadow-adrians-vertical-card z-10">
-            {schedules.map((schedule) => (
-              <div
-                key={schedule.id}
-                onClick={() => {
-                  setSelectedSchedule(schedule);
-                  setOpenSchedule(false);
-                }}
-                className={`text-adrians-brown px-4 py-2 rounded-[10px] hover:bg-adrians-red/5 hover:text-adrians-red transition-all cursor-pointer ${
-                  schedule.unavailable ? "text-gray-400 cursor-not-allowed" : ""
-                }`}
+          <AnimatePresence>
+            {openSchedule && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="absolute p-[10px] top-[100px] left-0 w-full bg-white rounded-[10px] shadow-adrians-vertical-card z-10"
               >
-                {schedule.time}
-              </div>
-            ))}
-          </div>
-        )}
+                {schedules.map((schedule) => (
+                  <div
+                    key={schedule.id}
+                    onClick={() => {
+                      setSelectedSchedule(schedule);
+                      setOpenSchedule(false);
+                    }}
+                    className={`text-adrians-brown px-4 py-2 rounded-[10px] hover:bg-adrians-red/5 hover:text-adrians-red transition-all cursor-pointer ${
+                      schedule.unavailable ? "text-gray-400 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {schedule.time}
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
       </div>
 
       {/* Adults */}
@@ -145,13 +182,13 @@ export function BookTour() {
           <h3 className="text-[20px] font-semibold text-adrians-brown">Adults</h3>
         </div>
         <div className="flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full transition-all duration-300 ease-in-out hover:border-adrians-red">
-          <Minus_btn onclick={""} />
+          <Minus_btn onclick={handleDecrementAdults} />
           <input
             type="number"
-            value="2"
+            value={adults}
             className="w-full text-center no-spinner outline-none text-[14px] font-regular placeholder:font-light placeholder:text-[14px] text-adrians-brown"
           />
-          <Plus_btn onclick={""} />
+          <Plus_btn onclick={handleIncrementAdults} />
         </div>
       </div>
 
@@ -174,13 +211,13 @@ export function BookTour() {
           />
         </div>
         <div className="flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full transition-all duration-300 ease-in-out hover:border-adrians-red">
-          <Minus_btn onclick={""} />
+          <Minus_btn onclick={handleDecrementChildren} />
           <input
             type="number"
-            value="0"
+            value={children}
             className="w-full text-center no-spinner outline-none text-[14px] font-regular placeholder:font-light placeholder:text-[14px] text-adrians-brown"
           />
-          <Plus_btn onclick={""} />
+          <Plus_btn onclick={handleIncrementChildren} />
         </div>
       </div>
 
