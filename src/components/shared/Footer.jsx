@@ -9,7 +9,7 @@ export function Footer() {
     ]
     return (
         <div className="flex flex-col w-full p-[40px] bg-adrians-red">
-            <div className="flex flex-col gap-[20px] w-[80vw] m-auto justify-between items-center">
+            <div className="flex flex-col gap-[20px] w-[90vw] m-auto justify-between items-center">
                 <div className="w-full justify-between items-center flex gap-[20px]">
                     <img src="./icons/icon.svg" alt="" />
                     
