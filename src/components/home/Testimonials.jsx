@@ -17,9 +17,11 @@ export function Testimonials() {
     return (
         <div
             className="
-                flex w-[80vw] m-auto py-[40px] gap-[40px]
+                flex w-[80vw] m-auto pt-[40px] pb-[180px] gap-[40px]
                 max-xl:w-[90vw]
+                 max-lg:pb-[220px]
                 max-md:flex-col
+                max-sm:pb-[260px]
                 max-sm:gap-[40px]
             "
         >
@@ -51,7 +53,11 @@ export function Testimonials() {
             {/* Testimonials Slider */}
             <div className="flex flex-col items-end w-[50%] gap-[40px] max-md:w-full">
                 {/* Testimonial */}
-                <div className="flex w-full h-fit">
+                <div 
+                    data-aos="fade-up"
+                    data-aos-once="true"
+                    data-aos-duration="1000"
+                    className="flex w-full h-fit">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={currentIndex}
