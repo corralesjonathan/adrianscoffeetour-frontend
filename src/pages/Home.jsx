@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Navbar } from "../components/navigation/Navbar.jsx"
+import { Navbar } from "../components/shared/Navbar.jsx"
 import { Hero } from "../components/home/Hero.jsx"
 import { Features } from "../components/home/Features.jsx"
 import { Family } from "../components/home/Family.jsx"
