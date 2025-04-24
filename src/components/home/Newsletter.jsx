@@ -33,7 +33,7 @@ export function Newsletter() {
                 "
       >
         <form className="w-full" action="">
-          <div className="flex py-[10px] px-[20px] w-full border-[1px] border-adrians-red rounded-full">
+          <div className="flex py-[10px] pr-[10px] pl-[20px] w-full border-[1px] border-adrians-red rounded-full">
             <input
               type="text"
               placeholder="Enter your email"
