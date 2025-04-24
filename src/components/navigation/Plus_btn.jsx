@@ -3,17 +3,17 @@ import { Plus } from "lucide-react";
 export function Plus_btn( {onclick} ) {
     return (
         <>
-                <span
+                <button
                     onClick={onclick}
-                    className="cursor-pointer group flex justify-center items-center border-adrians-red border-[1px] rounded-full w-[18px] h-[18px]
-                    hover:bg-adrians-red
-                    transition-all duration-300 ease-in-out
-                    ">
+                    className="cursor-pointer"
+                    >
                         <Plus 
-                        className="text-adrians-red group-hover:text-white" size={16} strokeWidth={2}
-                        transition-all duration-300 ease-in-out
+                        className="px-[2px] rounded-full text-adrians-red hover:bg-adrians-red hover:text-white
+                        transition-all duration-300 ease-in-out" 
+                        size={22} 
+                        strokeWidth={2}
                         />
-                </span>
+                </button>
         </>
     );
 }

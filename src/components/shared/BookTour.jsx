@@ -6,25 +6,35 @@ import { useState, useEffect, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { CalendarPicker } from "./CalendarPicker.jsx";
 
-import "react-tooltip/dist/react-tooltip.css";
+const schedules = [
+  { id: 1, time: "9:00 AM to 11:30 AM", unavailable: false },
+  { id: 2, time: "1:00 PM to 3:30 PM", unavailable: false },
+];
 
 export function BookTour() {
-  
+  /** Schedule */
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [openSchedule, setOpenSchedule] = useState(false);
+  const scheduleRef = useRef(null);
+
   /** DayPicker */
   const [selected, setSelected] = useState();
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef(null);
   const dates = ["2025-04-22", "2025-04-23", "2025-04-24", "2025-04-25", "2025-04-26"];
 
-  const availableDates = dates.map(dateStr => {
+  const availableDates = dates.map((dateStr) => {
     const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   });
-  
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (calendarRef.current && !calendarRef.current.contains(event.target)) {
         setShowCalendar(false);
+      }
+      if (scheduleRef.current && !scheduleRef.current.contains(event.target)) {
+        setOpenSchedule(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -32,7 +42,7 @@ export function BookTour() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   return (
     <div
       data-aos="zoom-in"
@@ -55,41 +65,77 @@ export function BookTour() {
           placeholder="Choose a date"
           readOnly
           onClick={() => setShowCalendar(!showCalendar)}
-          value={selected ? selected.toLocaleDateString("en-US", {month: "long", day: "numeric", year: "numeric"}) : ""}
+          value={
+            selected
+              ? selected.toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : ""
+          }
           className="
-            w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full 
-            text-[14px] font-light placeholder:font-light placeholder:text-[14px] 
+            cursor-pointer w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full 
+            text-[14px] font-regular placeholder:font-regular placeholder:text-[14px] text-adrians-brown placeholder:text-adrians-brown
+            hover:border-adrians-red
             outline-none
+            transition-all duration-300 ease-in-out
           "
         />
-          {/* Calendar Picker */}
-          <AnimatePresence>
-            <CalendarPicker
-              selected={selected}
-              setSelected={setSelected}
-              availableDates={availableDates}
-              showCalendar={showCalendar}
-              setShowCalendar={setShowCalendar}
-              calendarRef={calendarRef}
-            />
-          </AnimatePresence>
+        <AnimatePresence>
+          <CalendarPicker
+            selected={selected}
+            setSelected={setSelected}
+            availableDates={availableDates}
+            showCalendar={showCalendar}
+            setShowCalendar={setShowCalendar}
+            calendarRef={calendarRef}
+          />
+        </AnimatePresence>
       </div>
 
       {/* Schedule */}
-      <div className="flex flex-col gap-[20px] w-full justify-center items-center">
+      <div className="flex flex-col gap-[20px] w-full justify-center items-center relative" ref={scheduleRef}>
         <div className="flex gap-[10px] w-full items-center justify-start">
           <img src="./icons/clock.svg" alt="Schedule" />
           <h3 className="text-[20px] font-semibold text-adrians-brown">Schedule</h3>
         </div>
-        <input
-          type="text"
-          placeholder="Choose a schedule"
-          className="
-            w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full 
-            text-[14px] font-light placeholder:font-light placeholder:text-[14px] 
-            outline-none
-          "
-        />
+
+        {/* Input */}
+        <div
+          className="text-adrians-brown hover:border-adrians-red transition-all duration-300 ease-in-out cursor-pointer outline-none text-[14px] font-regular flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full"
+          onClick={() => setOpenSchedule(!openSchedule)}
+        >
+          {selectedSchedule?.time || "Choose a schedule"}
+          <svg
+            className={`w-4 h-4 ml-2 transition-transform duration-200 ${openSchedule ? "rotate-180" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+
+        {/* Options */}
+        {openSchedule && (
+          <div className="absolute p-[10px] top-[100px] left-0 w-full bg-white rounded-[10px] shadow-adrians-vertical-card z-10">
+            {schedules.map((schedule) => (
+              <div
+                key={schedule.id}
+                onClick={() => {
+                  setSelectedSchedule(schedule);
+                  setOpenSchedule(false);
+                }}
+                className={`text-adrians-brown px-4 py-2 rounded-[10px] hover:bg-adrians-red/5 hover:text-adrians-red transition-all cursor-pointer ${
+                  schedule.unavailable ? "text-gray-400 cursor-not-allowed" : ""
+                }`}
+              >
+                {schedule.time}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Adults */}
@@ -98,15 +144,12 @@ export function BookTour() {
           <img src="./icons/adults.svg" alt="Adults" />
           <h3 className="text-[20px] font-semibold text-adrians-brown">Adults</h3>
         </div>
-        <div className="flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full">
+        <div className="flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full transition-all duration-300 ease-in-out hover:border-adrians-red">
           <Minus_btn onclick={""} />
           <input
             type="number"
             value="2"
-            className="
-              w-full text-center no-spinner outline-none text-[14px] font-light 
-              placeholder:font-light placeholder:text-[14px]
-            "
+            className="w-full text-center no-spinner outline-none text-[14px] font-regular placeholder:font-light placeholder:text-[14px] text-adrians-brown"
           />
           <Plus_btn onclick={""} />
         </div>
@@ -130,15 +173,12 @@ export function BookTour() {
             place="bottom"
           />
         </div>
-        <div className="flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full">
+        <div className="flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full transition-all duration-300 ease-in-out hover:border-adrians-red">
           <Minus_btn onclick={""} />
           <input
             type="number"
             value="0"
-            className="
-              w-full text-center no-spinner outline-none text-[14px] font-light 
-              placeholder:font-light placeholder:text-[14px]
-            "
+            className="w-full text-center no-spinner outline-none text-[14px] font-regular placeholder:font-light placeholder:text-[14px] text-adrians-brown"
           />
           <Plus_btn onclick={""} />
         </div>
@@ -146,15 +186,10 @@ export function BookTour() {
 
       {/* Book Button */}
       <div
-        className="
-          flex w-full justify-center items-center
-          max-sm:col-span-1 max-sm:mt-[20px] max-sm:mb-[20px]
-          max-xl:col-span-2 max-xl:mt-[20px]
-        "
+        className="flex w-full justify-center items-center max-sm:col-span-1 max-sm:mt-[20px] max-sm:mb-[20px] max-xl:col-span-2 max-xl:mt-[20px]"
       >
         <Book_btn text={"Book Now"} />
       </div>
-
     </div>
   );
 }

@@ -27,6 +27,13 @@
     -webkit-appearance: none;
     margin: 0;
   }
+
+  .no-arrow {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none;
+  }
 }
 
 :root {
