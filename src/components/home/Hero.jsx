@@ -66,7 +66,8 @@ export function Hero({ img }) {
             data-aos-duration="1000"
             data-aos-once="true"
           >
-            Follow every step of the coffee journey, from the plantations to the perfect cup.
+            Follow every step of the coffee journey, from the plantations to the
+            perfect cup.
           </p>
         </div>
 
@@ -126,8 +127,8 @@ export function Hero({ img }) {
               hover:bg-black/50
               transition-all duration-300 ease-in-out
               "
-              >
-                <IoClose className="text-[30px]" />
+            >
+              <IoClose className="text-[30px]" />
             </button>
 
             <motion.div
@@ -138,7 +139,6 @@ export function Hero({ img }) {
               exit={{ opacity: 0, scale: 0.85 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-
               <iframe
                 className="w-full h-full rounded-lg"
                 src="https://www.youtube.com/embed/BZCbAXwvol4?autoplay=1&start=6"
