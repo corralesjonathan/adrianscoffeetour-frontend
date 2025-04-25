@@ -5,7 +5,7 @@ import { BookTour } from "../shared/BookTour.jsx";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-export function Hero({ img }) {
+export function Hero() {
   const [showVideo, setShowVideo] = useState(false);
   const videoRef = useRef(null);
 
