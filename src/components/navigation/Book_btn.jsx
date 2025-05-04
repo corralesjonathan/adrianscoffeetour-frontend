@@ -1,8 +1,9 @@
 
-export function Book_btn( {text} ) {
+export function Book_btn( {text, onClick} ) {
     return (
         <>
             <button
+                onClick={onClick}
                 className="group cursor-pointer flex gap-[10px] w-fit justify-center items-center px-[20px] py-[10px] font-secondary text-[18px] font-semibold rounded-full bg-adrians-red shadow-adrians-btn-shadow text-white
                 hover:shadow-adrians-btn-shadow-hover hover:scale-105
                 transition-all duration-300 ease-in-out">{text}

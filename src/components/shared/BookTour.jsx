@@ -225,7 +225,7 @@ export function BookTour() {
       <div
         className="flex w-full justify-center items-center max-sm:col-span-1 max-sm:mt-[20px] max-sm:mb-[20px] max-xl:col-span-2 max-xl:mt-[20px]"
       >
-        <Book_btn text={"Book Now"} />
+        <Book_btn text={"Book Now"} onClick={""} />
       </div>
     </div>
   );
