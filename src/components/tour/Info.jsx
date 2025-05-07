@@ -40,7 +40,12 @@ export function Info() {
       </div>
 
       {/* Features */}
-      <div className="w-[50%] flex items-center justify-center max-md:w-full relative">
+      <div 
+        data-aos="zoom-in"
+        data-aos-once="true"
+        data-aos-duration="1000"
+        data-aos-delay="800"
+        className="w-[50%] flex items-center justify-center max-md:w-full relative">
         <div className="flex relative justify-center items-center w-[300px] h-[300px]">
           {features.map((feature, index) => {
             const positions = [
