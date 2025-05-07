@@ -8,11 +8,13 @@ import { About } from './pages/About.jsx';
 import { Products } from './pages/Products.jsx';
 import { Contact } from './pages/Contact.jsx';
 import { UnderConstruction } from './pages/UnderConstruction.jsx';
+import ScrollToTop from './components/shared/ScrollToTop.jsx';
 
 AOS.init();
 function App() {
   return (
     <Router>
+      <ScrollToTop /> 
       <Routes>
         <Route path="/under-construction" element={<UnderConstruction />} />
         <Route path="/" element={<Home />} />      

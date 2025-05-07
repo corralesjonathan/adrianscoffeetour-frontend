@@ -5,6 +5,7 @@ import { Minus_btn } from "../navigation/Minus_btn";
 import { useState, useEffect, useRef } from "react";
 import { CalendarPicker } from "./CalendarPicker.jsx";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from 'axios';
 
 const schedules = [
   { id: 1, time: "9:00 AM to 11:30 AM", unavailable: false },
@@ -72,7 +73,26 @@ export function BookTour() {
     }
   };
 
+  /** API */
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get('http://adrianscoffeetour-backend.test/api/schedules')
+      .then(response => {
+        setData(response.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error al obtener datos:', error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <p>Cargando datos...</p>;
+
   return (
+    
     <div
       data-aos="zoom-in"
       data-aos-duration="1000"
