@@ -1,6 +1,6 @@
 export function SectionTitle( {text, position} ) {
     return (
-            <div className={`flex flex-col ${position}`}>
+            <div className={`flex flex-col text-center ${position}`}>
                 <h1
                 className="text-[40px] font-primary font-regular text-adrians-brown"
                 data-aos="fade-up"
