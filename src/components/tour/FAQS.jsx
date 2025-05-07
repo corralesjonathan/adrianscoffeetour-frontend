@@ -1,14 +1,16 @@
 import { SectionTitle } from "../shared/SectionTitle";
 import { Plus, Minus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import faqs from "../../data/faqs";
 
 export function FAQS() {
   const [openId, setOpenId] = useState(null);
 
   const toggleAccordion = (id) => {
-    setOpenId(prevId => (prevId === id ? null : id));
+    setOpenId((prevId) => (prevId === id ? null : id));
   };
 
   return (
@@ -20,17 +22,19 @@ export function FAQS() {
         max-sm:gap-[40px]
       "
     >
-      {/* Title */}
       <SectionTitle text="Frequently Asked Questions" position="items-center" />
 
-      {/* Accordion */}
       <div className="w-full grid grid-cols-2 gap-[20px] max-md:grid-cols-1">
-        {faqs.map(({ id, question, answer }) => {
+        {faqs.map(({ id, question, answer }, index) => {
           const isOpen = openId === id;
+          const delay = index * 100; // 0ms, 100ms, 200ms, etc.
+
           return (
             <div
               key={id}
               className="flex flex-col items-start gap-[10px] border-y-[1px] border-adrians-red py-[10px]"
+              data-aos="zoom-in"
+              data-aos-delay={delay}
             >
               {/* Header */}
               <div
@@ -41,10 +45,7 @@ export function FAQS() {
                   animate={{ rotate: isOpen ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div
-                    className=" text-adrians-red
-                      transition-all duration-300 ease-in-out"
-                  >
+                  <div className="text-adrians-red transition-all duration-300 ease-in-out">
                     {isOpen ? (
                       <Minus size={24} strokeWidth={2} />
                     ) : (

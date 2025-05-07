@@ -14,6 +14,9 @@ export function Video() {
 
       {/* Video */}
       <iframe
+        data-aos="zoom-in"
+        data-aos-duration="1000"
+        data-aos-once="true"
         className="w-full h-[720px] rounded-[20px]
         max-lg:h-[500px]"
         src="https://www.youtube.com/embed/BZCbAXwvol4?autoplay=1&start=0"
