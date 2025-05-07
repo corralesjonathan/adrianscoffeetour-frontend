@@ -26,28 +26,28 @@ export function Origins() {
             "
         >
           {/* Coffee */}
-          <div className="flex gap-[16px]">
+          <div className="flex gap-[16px] items-center">
             <img className="w-[40px]" src="./icons/coffee.svg" alt="Coffee" />
             <p className="text-[16px] font-regular text-adrians-brown">
               Over 40 years of experience with coffee.
             </p>
           </div>
           {/* Earth */}
-          <div className="flex gap-[16px]">
+          <div className="flex gap-[16px] items-center">
             <img className="w-[40px]" src="./icons/earth.svg" alt="Earth" />
             <p className="text-[16px] font-regular text-adrians-brown">
               Visitors from more than 20 countries.
             </p>
           </div>
           {/* Family */}
-          <div className="flex gap-[16px]">
+          <div className="flex gap-[16px] items-center">
             <img className="w-[40px]" src="./icons/family.svg" alt="Family" />
             <p className="text-[16px] font-regular text-adrians-brown">
               Family-owned and operated with love.
             </p>
           </div>
           {/* Security */}
-          <div className="flex gap-[16px]">
+          <div className="flex gap-[16px] items-center">
             <img
               className="w-[40px]"
               src="./icons/security.svg"
