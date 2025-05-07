@@ -1,9 +1,7 @@
 import { SectionTitle } from "../shared/SectionTitle";
 import { Plus, Minus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import AOS from "aos";
-import "aos/dist/aos.css";
 import faqs from "../../data/faqs";
 
 export function FAQS() {
