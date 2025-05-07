@@ -55,7 +55,12 @@ export function ContactUs() {
           </div>
         </div>
         {/* Socials */}
-        <div className="w-full justify-start items-center flex gap-[10px]">
+        <div 
+        data-aos="fade-up"
+        data-aos-once="true"
+        data-aos-duration="1000"
+        data-aos-delay="600"
+        className="w-full justify-start items-center flex gap-[10px]">
           <a href="https://www.instagram.com/adrianscoffeetour/">
             <RiInstagramFill
               className="text-white bg-adrians-red w-[40px] h-[40px] rounded-full p-[7px]
