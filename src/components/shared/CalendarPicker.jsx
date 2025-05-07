@@ -1,6 +1,6 @@
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 export function CalendarPicker({ selected, setSelected, availableDates, showCalendar, setShowCalendar, calendarRef }) {
   const isDisabled = (date) => {
