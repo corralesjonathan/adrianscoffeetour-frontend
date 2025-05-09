@@ -116,7 +116,7 @@ export function Hero() {
       <AnimatePresence>
         {showVideo && (
           <motion.div
-            className="fixed inset-0 z-50 bg-black/90 flex justify-center items-center"
+            className="fixed inset-0 z-[50] bg-black/90 flex justify-center items-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
