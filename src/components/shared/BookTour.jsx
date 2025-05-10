@@ -46,6 +46,31 @@ export function BookTour() {
   }, [adults, children, adultPrice, childPrice, taxRate]);
 
   const [showSummary, setShowSummary] = useState(false);
+  const [dateError, setDateError] = useState("");
+  const [scheduleError, setScheduleError] = useState("");
+
+  // Función para validar antes de mostrar el resumen
+  const validateAndShowSummary = () => {
+    let isValid = true;
+    
+    if (!selected) {
+      setDateError("Por favor selecciona una fecha para el tour");
+      isValid = false;
+    } else {
+      setDateError("");
+    }
+    
+    if (!selectedSchedule) {
+      setScheduleError("Por favor selecciona un horario para el tour");
+      isValid = false;
+    } else {
+      setScheduleError("");
+    }
+
+    if (isValid) {
+      setShowSummary(true);
+    }
+  };
 
   // Fetch available dates and tour info
   useEffect(() => {
@@ -132,6 +157,11 @@ export function BookTour() {
       >
         {/* Date Picker */}
         <div className="flex relative flex-col gap-[20px] w-full justify-center items-center">
+          {dateError && (
+            <div className="absolute -top-6 left-0 w-full bg-adrians-red/10 p-[10px] rounded-[20px]">
+              <p className="text-adrians-red text-sm">{dateError}</p>
+            </div>
+          )}
           <div className="flex gap-[10px] w-full items-center justify-start">
             <img src="./icons/calendar.svg" alt="Calendar" />
             <h3 className="text-[20px] font-semibold text-adrians-brown">Date</h3>
@@ -166,6 +196,11 @@ export function BookTour() {
 
         {/* Schedule Picker */}
         <div className="flex flex-col gap-[20px] w-full justify-center items-center relative" ref={scheduleRef}>
+          {scheduleError && (
+            <div className="absolute -top-6 left-0 w-full">
+              <p className="text-adrians-red text-sm">{scheduleError}</p>
+            </div>
+          )}
           <div className="flex gap-[10px] w-full items-center justify-start">
             <img src="./icons/clock.svg" alt="Schedule" />
             <h3 className="text-[20px] font-semibold text-adrians-brown">Schedule</h3>
@@ -240,8 +275,8 @@ export function BookTour() {
         </div>
 
         {/* Book Button */}
-        <div className="flex w-full justify-center items-center max-sm:col-span-1 max-sm:mt-[20px] max-sm:mb-[20px] max-xl:col-span-2 max-xl:mt-[20px]">
-          <Book_btn text="Book Now" onClick={() => setShowSummary(true)} />
+        <div className="flex flex-col gap-[10px] w-full justify-center items-center max-sm:col-span-1 max-sm:mt-[20px] max-sm:mb-[20px] max-xl:col-span-2 max-xl:mt-[20px]">
+          <Book_btn text="Book Now" onClick={validateAndShowSummary} />
         </div>
       </div>
 
