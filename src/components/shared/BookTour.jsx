@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import axios from "axios";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoClose } from "react-icons/io5";
 
@@ -9,14 +9,17 @@ import { Minus_btn } from "../navigation/Minus_btn";
 import { CalendarPicker } from "./CalendarPicker.jsx";
 import { Tooltip } from "react-tooltip";
 
+import { useBookingData } from "../../hooks/useBookingData";
+import { useBookingValidation } from "../../hooks/useBookingValidation";
+import { useBookingCalculations } from "../../hooks/useBookingCalculations";
+
 export function BookTour() {
-  const apiUrl = import.meta.env.VITE_APP_API_URL;
-
-  // Data States
-  const [data, setData] = useState([]);
-  const [tourInfo, setTourInfo] = useState({});
-  const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
+  
+  // Custom hooks
+  const { tourInfo, availableDates, scheduleMapByDate, loading, error } = useBookingData();
+  const { dateError, scheduleError, validateBooking, clearErrors } = useBookingValidation();
+  
   // UI States
   const [selected, setSelected] = useState();
   const [showCalendar, setShowCalendar] = useState(false);
@@ -28,123 +31,93 @@ export function BookTour() {
 
   const [adults, setAdults] = useState(0);
   const [children, setChildren] = useState(0);
-  const [maxPeople, setMaxPeople] = useState(0);
-  const adultPrice = tourInfo.adult_price;
-  const childPrice = tourInfo.child_price;
-  const taxRate = tourInfo.tax;
-
-  const total = useMemo(() => {
-  const subtotal = adults * adultPrice + children * childPrice;
-  const tax = taxRate ? subtotal *  taxRate : 0;
-  return subtotal + tax;
-  }, [adults, children, adultPrice, childPrice, taxRate]);
-
-  const taxes = useMemo(() => {
-    const subtotal = adults * adultPrice + children * childPrice;
-    const tax = taxRate ? subtotal * taxRate : 0;
-    return tax;
-  }, [adults, children, adultPrice, childPrice, taxRate]);
-
   const [showSummary, setShowSummary] = useState(false);
-  const [dateError, setDateError] = useState("");
-  const [scheduleError, setScheduleError] = useState("");
 
-  // Función para validar antes de mostrar el resumen
+  // Initialize counters when tour info is loaded
+  useEffect(() => {
+    if (tourInfo) {
+      setAdults(tourInfo.min_adults || 0);
+      setChildren(tourInfo.min_children || 0);
+    }
+  }, [tourInfo]);
+
+  // Price calculations
+  const { total, taxes } = useBookingCalculations({
+    adults,
+    children,
+    adultPrice: tourInfo.adult_price,
+    childPrice: tourInfo.child_price,
+    taxRate: tourInfo.tax
+  });
+
+  // Handle validation and summary display
   const validateAndShowSummary = () => {
-    let isValid = true;
-    
-    if (!selected) {
-      setDateError("Please select a date for the tour");
-      isValid = false;
-    } else {
-      setDateError("");
-    }
-    
-    if (!selectedSchedule) {
-      setScheduleError("Please select a schedule for the tour");
-      isValid = false;
-    } else {
-      setScheduleError("");
-    }
-
+    const isValid = validateBooking({ selected, selectedSchedule });
     if (isValid) {
       setShowSummary(true);
     }
   };
 
-  // Fetch available dates and tour info
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [datesRes, tourRes] = await Promise.all([
-          axios.get(`${apiUrl}/available-dates`, {
-            headers: { 'X-API-KEY': '88db7914-fd68-460e-aa12-632ea62da18e' }
-          }),
-          axios.get(`${apiUrl}/adrianscoffeetour`, {
-            headers: { 'X-API-KEY': '88db7914-fd68-460e-aa12-632ea62da18e' }
-          })
-        ]);
-
-        setData(datesRes.data);
-        setTourInfo(tourRes.data);
-        setAdults(tourRes.data.min_adults);
-        setChildren(tourRes.data.min_children);
-        setMaxPeople(tourRes.data.max_people);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [apiUrl]);
-
-  const availableDates = useMemo(() => {
-    return [...new Set(data.map(item => item.date.date))].map(dateStr => {
-      const [year, month, day] = dateStr.split("-").map(Number);
-      return new Date(year, month - 1, day);
-    });
-  }, [data]);
-
-  const scheduleMapByDate = useMemo(() => {
-    const map = {};
-    data.forEach(item => {
-      const dateStr = item.date.date;
-      if (!map[dateStr]) map[dateStr] = [];
-      map[dateStr].push({ id: item.schedule.id, time: item.schedule.schedule });
-    });
-    return map;
-  }, [data]);
-
-  const selectedDateString = selected ? selected.toISOString().split("T")[0] : null;
-  const filteredSchedules = selectedDateString ? scheduleMapByDate[selectedDateString] || [] : [];
-
-  // Outside click to close calendar/schedule
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (calendarRef.current && !calendarRef.current.contains(event.target)) setShowCalendar(false);
-      if (scheduleRef.current && !scheduleRef.current.contains(event.target)) setOpenSchedule(false);
+  // Handle checkout navigation
+  const handleCheckout = () => {
+    const bookingData = {
+      date: selected,
+      schedule: selectedSchedule,
+      adults,
+      children,
+      total,
+      taxes
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    
+    // Store booking data in sessionStorage for checkout
+    sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+    navigate('/checkout');
+  };
 
-  // Counter handlers
+  // Counter handlers with validation
   const handleIncrementAdults = () => {
-    if (adults + children < maxPeople) setAdults(adults + 1);
+    if (adults + children < tourInfo.max_people) {
+      setAdults(prev => prev + 1);
+    }
   };
+
   const handleIncrementChildren = () => {
-    if (adults + children < maxPeople) setChildren(children + 1);
+    if (adults + children < tourInfo.max_people) {
+      setChildren(prev => prev + 1);
+    }
   };
+
   const handleDecrementAdults = () => {
-    if (adults > tourInfo.min_adults) setAdults(adults - 1);
+    if (adults > tourInfo.min_adults) {
+      setAdults(prev => prev - 1);
+    }
   };
+
   const handleDecrementChildren = () => {
-    if (children > tourInfo.min_children) setChildren(children - 1);
+    if (children > tourInfo.min_children) {
+      setChildren(prev => prev - 1);
+    }
+  };
+
+  // Handle date selection
+  const handleDateSelect = (date) => {
+    setSelected(date);
+    setSelectedSchedule(null); // Reset schedule when date changes
+    clearErrors();
+  };
+
+  // Handle schedule selection
+  const handleScheduleSelect = (schedule) => {
+    setSelectedSchedule(schedule);
+    setOpenSchedule(false);
+    clearErrors();
   };
 
   if (loading) return <p>Loading data...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  const selectedDateString = selected ? selected.toISOString().split("T")[0] : null;
+  const filteredSchedules = selectedDateString ? scheduleMapByDate[selectedDateString] || [] : [];
 
   return (
     <>
@@ -171,21 +144,17 @@ export function BookTour() {
             placeholder="Choose a date"
             readOnly
             onClick={() => setShowCalendar(!showCalendar)}
-            value={
-              selected
-                ? selected.toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })
-                : ""
-            }
+            value={selected ? selected.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            }) : ""}
             className="cursor-pointer w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full text-[14px] font-regular placeholder:text-adrians-brown text-adrians-brown hover:border-adrians-red outline-none transition-all duration-300 ease-in-out"
           />
           <AnimatePresence>
             <CalendarPicker
               selected={selected}
-              setSelected={setSelected}
+              setSelected={handleDateSelect}
               availableDates={availableDates}
               showCalendar={showCalendar}
               setShowCalendar={setShowCalendar}
@@ -229,10 +198,7 @@ export function BookTour() {
                   filteredSchedules.map((schedule) => (
                     <div
                       key={schedule.id}
-                      onClick={() => {
-                        setSelectedSchedule(schedule);
-                        setOpenSchedule(false);
-                      }}
+                      onClick={() => handleScheduleSelect(schedule)}
                       className="text-adrians-brown px-4 py-2 rounded-[10px] hover:bg-adrians-red/5 hover:text-adrians-red transition-all cursor-pointer"
                     >
                       {schedule.time}
@@ -310,8 +276,8 @@ export function BookTour() {
               <div className="flex flex-col gap-[20px]">
                 <p className="text-[18px] font-regular text-adrians-brown"><strong>Date:</strong> {selected?.toLocaleDateString()}</p>
                 <p className="text-[18px] font-regular text-adrians-brown"><strong>Schedule:</strong> {selectedSchedule?.time}</p>
-                <p className="text-[18px] font-regular text-adrians-brown"><strong>Adults:</strong> {adults} x ${adultPrice}</p>
-                <p className="text-[18px] font-regular text-adrians-brown"><strong>Children:</strong> {children} x ${childPrice}</p>
+                <p className="text-[18px] font-regular text-adrians-brown"><strong>Adults:</strong> {adults} x ${tourInfo.adult_price}</p>
+                <p className="text-[18px] font-regular text-adrians-brown"><strong>Children:</strong> {children} x ${tourInfo.child_price}</p>
               </div>
 
               <span className="w-full h-[2px] bg-adrians-red block rounded-full"></span>
@@ -336,7 +302,7 @@ export function BookTour() {
                 <button
                   onClick={() => {
                     setShowSummary(false);
-                    console.log("Ir al checkout con datos...");
+                    handleCheckout();
                   }}
                   className="cursor-pointer text-[18px] font-semibold px-[20px] py-[10px] bg-adrians-red shadow-adrians-btn-shadow hover:shadow-adrians-btn-shadow-hover hover:scale-105 text-white rounded-full transition-all duration-300 ease-in-out"
                 >

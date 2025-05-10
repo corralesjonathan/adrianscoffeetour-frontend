@@ -1,13 +1,14 @@
 import { Navbar } from "../components/navigation/Navbar.jsx";
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 export function Checkout() {
   const location = useLocation();
   const checkoutData = location.state;
 
-  if (!checkoutData) {
-    return <div>Checkout data not found.</div>;
-  }
+  useEffect(() => {
+    document.title = "Checkout - Adrian's Coffee Tour";
+}, []);
 
   return (
     <>
