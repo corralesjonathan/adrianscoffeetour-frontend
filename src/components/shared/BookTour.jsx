@@ -12,9 +12,6 @@ import { Tooltip } from "react-tooltip";
 export function BookTour() {
   const apiUrl = import.meta.env.VITE_APP_API_URL;
 
-  const PRICE_PER_ADULT = 50;
-  const PRICE_PER_CHILD = 45;
-
   // Data States
   const [data, setData] = useState([]);
   const [tourInfo, setTourInfo] = useState({});
@@ -32,6 +29,21 @@ export function BookTour() {
   const [adults, setAdults] = useState(0);
   const [children, setChildren] = useState(0);
   const [maxPeople, setMaxPeople] = useState(0);
+  const adultPrice = tourInfo.adult_price;
+  const childPrice = tourInfo.child_price;
+  const taxRate = tourInfo.tax;
+
+  const total = useMemo(() => {
+  const subtotal = adults * adultPrice + children * childPrice;
+  const tax = taxRate ? subtotal *  taxRate : 0;
+  return subtotal + tax;
+  }, [adults, children, adultPrice, childPrice, taxRate]);
+
+  const taxes = useMemo(() => {
+    const subtotal = adults * adultPrice + children * childPrice;
+    const tax = taxRate ? subtotal * taxRate : 0;
+    return tax;
+  }, [adults, children, adultPrice, childPrice, taxRate]);
 
   const [showSummary, setShowSummary] = useState(false);
 
@@ -82,10 +94,6 @@ export function BookTour() {
 
   const selectedDateString = selected ? selected.toISOString().split("T")[0] : null;
   const filteredSchedules = selectedDateString ? scheduleMapByDate[selectedDateString] || [] : [];
-
-  const totalPrice = useMemo(() => {
-    return adults * PRICE_PER_ADULT + children * PRICE_PER_CHILD;
-  }, [adults, children]);
 
   // Outside click to close calendar/schedule
   useEffect(() => {
@@ -248,7 +256,7 @@ export function BookTour() {
           >
             <button
               onClick={() => setShowSummary(false)}
-              className="absolute cursor-pointer -top-[-20px] -right-[-20px] p-[5px] bg-black/20 rounded-full text-white text-4xl font-bold
+              className="absolute cursor-pointer -top-[-20px] -right-[-20px] p-[5px] bg-black/20 rounded-full text-white
               hover:bg-black/50
               transition-all duration-300 ease-in-out"
             >
@@ -256,23 +264,37 @@ export function BookTour() {
             </button>
 
             <motion.div
-              className="relative flex flex-col gap-[40px] p-[40px] shadow-adrians-horizontal-card w-[60vw] bg-white rounded-[40px] "
+              className="relative flex flex-col gap-[40px] p-[40px] shadow-adrians-horizontal-card w-[60vw] max-lg:w-[80vw] bg-white rounded-[40px] "
               initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.85 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <h2 className="text-xl font-bold text-adrians-brown mb-4">Reservation Summary</h2>
-              <p><strong>Date:</strong> {selected?.toLocaleDateString()}</p>
-              <p><strong>Schedule:</strong> {selectedSchedule?.time}</p>
-              <p><strong>Adults:</strong> {adults} x ${PRICE_PER_ADULT}</p>
-              <p><strong>Children:</strong> {children} x ${PRICE_PER_CHILD}</p>
-              <p className="mt-4 text-lg font-bold"><strong>Total:</strong> ${totalPrice}</p>
+              <h2 className="text-[36px] font-semibold text-adrians-red">Reservation Summary</h2>
+
+              <div className="flex flex-col gap-[20px]">
+                <p className="text-[18px] font-regular text-adrians-brown"><strong>Date:</strong> {selected?.toLocaleDateString()}</p>
+                <p className="text-[18px] font-regular text-adrians-brown"><strong>Schedule:</strong> {selectedSchedule?.time}</p>
+                <p className="text-[18px] font-regular text-adrians-brown"><strong>Adults:</strong> {adults} x ${adultPrice}</p>
+                <p className="text-[18px] font-regular text-adrians-brown"><strong>Children:</strong> {children} x ${childPrice}</p>
+              </div>
+
+              <span className="w-full h-[2px] bg-adrians-red block rounded-full"></span>
+
+              <div className="flex flex-col gap-[10px]">
+                <p className="text-[18px] font-regular text-adrians-brown">
+                  Taxes: ${taxes.toFixed(2)}
+                </p>
+                <p className="text-[22px] font-semibold text-adrians-red">
+                  Total: ${total.toFixed(2)}
+                </p>
+              </div>
+
 
               <div className="flex justify-between mt-6">
                 <button
                   onClick={() => setShowSummary(false)}
-                  className="bg-adrians-brown text-white px-4 py-2 rounded-full hover:bg-adrians-red transition-all"
+                  className="cursor-pointer text-[18px] font-regular underline text-adrians-red hover:font-medium transition-all duration-300 ease-in-out"
                 >
                   Edit
                 </button>
@@ -281,7 +303,7 @@ export function BookTour() {
                     setShowSummary(false);
                     console.log("Ir al checkout con datos...");
                   }}
-                  className="bg-adrians-red text-white px-4 py-2 rounded-full hover:bg-adrians-brown transition-all"
+                  className="cursor-pointer text-[18px] font-semibold px-[20px] py-[10px] bg-adrians-red shadow-adrians-btn-shadow hover:shadow-adrians-btn-shadow-hover hover:scale-105 text-white rounded-full transition-all duration-300 ease-in-out"
                 >
                   Checkout
                 </button>
