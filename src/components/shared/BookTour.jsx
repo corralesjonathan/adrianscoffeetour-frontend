@@ -54,14 +54,14 @@ export function BookTour() {
     let isValid = true;
     
     if (!selected) {
-      setDateError("Por favor selecciona una fecha para el tour");
+      setDateError("Please select a date for the tour");
       isValid = false;
     } else {
       setDateError("");
     }
     
     if (!selectedSchedule) {
-      setScheduleError("Por favor selecciona un horario para el tour");
+      setScheduleError("Please select a schedule for the tour");
       isValid = false;
     } else {
       setScheduleError("");
@@ -158,8 +158,8 @@ export function BookTour() {
         {/* Date Picker */}
         <div className="flex relative flex-col gap-[20px] w-full justify-center items-center">
           {dateError && (
-            <div className="absolute -top-6 left-0 w-full bg-adrians-red/10 p-[10px] rounded-[20px]">
-              <p className="text-adrians-red text-sm">{dateError}</p>
+            <div className="absolute -bottom-[30px] left-0 w-full p-[5px]">
+              <p className="text-[12px] text-adrians-red">{dateError}</p>
             </div>
           )}
           <div className="flex gap-[10px] w-full items-center justify-start">
@@ -197,8 +197,8 @@ export function BookTour() {
         {/* Schedule Picker */}
         <div className="flex flex-col gap-[20px] w-full justify-center items-center relative" ref={scheduleRef}>
           {scheduleError && (
-            <div className="absolute -top-6 left-0 w-full">
-              <p className="text-adrians-red text-sm">{scheduleError}</p>
+            <div className="absolute -bottom-[30px] left-0 w-full p-[5px]">
+              <p className="text-[12px] text-adrians-red">{scheduleError}</p>
             </div>
           )}
           <div className="flex gap-[10px] w-full items-center justify-start">
