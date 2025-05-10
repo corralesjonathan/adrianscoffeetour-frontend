@@ -7,6 +7,7 @@ import { Tour } from './pages/Tour.jsx';
 import { About } from './pages/About.jsx';
 import { Products } from './pages/Products.jsx';
 import { Contact } from './pages/Contact.jsx';
+import { Checkout } from './pages/Checkout.jsx';
 import { UnderConstruction } from './pages/UnderConstruction.jsx';
 import { ScrollToTop } from './components/shared/ScrollToTop.jsx';
 import { FloatingWhatsApp } from 'react-floating-whatsapp'
@@ -24,6 +25,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/products" element={<Products />} /> 
         <Route path="/contact" element={<Contact />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </Router>
   )
