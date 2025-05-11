@@ -10,3 +10,20 @@
   .float-animation {
     animation: floatUpDown 3s ease-in-out infinite;
   }
+
+/* Animación de zoom simple para el BookTour */
+@keyframes simpleZoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.highlight-animation {
+  animation: simpleZoom 0.8s ease-in-out;
+}

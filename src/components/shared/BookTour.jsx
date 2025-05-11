@@ -1,5 +1,5 @@
 // Core imports
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Component imports
@@ -18,10 +18,65 @@ import { useBookingCalculations } from "../../hooks/useBookingCalculations";
 import { useBookingForm } from "../../hooks/useBookingForm";
 
 export function BookTour() {
+  const bookTourRef = useRef(null);
+  
   // Initialize custom hooks
   const { tourInfo, availableDates, scheduleMapByDate, dateToIdMap, loading, error } = useBookingData();
   const { dateError, scheduleError, validateBooking, clearErrors } = useBookingValidation();
   const { formState, actions } = useBookingForm(tourInfo);
+  
+  // Efecto para manejar la animación de destacar
+  useEffect(() => {
+    const handleHighlight = () => {
+      if (bookTourRef.current) {
+        // Añadir clase de animación
+        bookTourRef.current.classList.add('highlight-animation');
+        
+        // Quitar la clase después de que la animación termine
+        setTimeout(() => {
+          if (bookTourRef.current) {
+            bookTourRef.current.classList.remove('highlight-animation');
+          }
+        }, 1000); // 1000ms es la duración de la animación
+      }
+    };
+    
+    // Escuchar el evento personalizado
+    window.addEventListener('highlightBookTour', handleHighlight);
+    
+    // Limpiar el event listener cuando el componente se desmonte
+    return () => {
+      window.removeEventListener('highlightBookTour', handleHighlight);
+    };
+  }, []);
+  
+  // Efecto para detectar si debemos activar la animación al cargar la página
+  // (cuando se navega desde otra página)
+  useEffect(() => {
+    const shouldAnimate = localStorage.getItem('triggerBookTourAnimation') === 'true';
+    
+    if (shouldAnimate && bookTourRef.current) {
+      // Dar tiempo a que la página cargue completamente
+      setTimeout(() => {
+        // Hacer scroll al componente
+        bookTourRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Activar la animación
+        bookTourRef.current.classList.add('highlight-animation');
+        
+        // Limpiar la clase después de que termine la animación
+        setTimeout(() => {
+          if (bookTourRef.current) {
+            bookTourRef.current.classList.remove('highlight-animation');
+          }
+        }, 1000);
+        
+        // Limpiar el flag
+        localStorage.removeItem('triggerBookTourAnimation');
+      }, 500);
+    }
+  }, []);
+  
 
   // Handle date selection and automatically open schedule selector
   const handleDateSelection = (date) => {
@@ -69,10 +124,11 @@ export function BookTour() {
     <>
       {/* Booking Form */}
       <div
+        ref={bookTourRef}
         data-aos="zoom-in"
         data-aos-duration="1000"
         data-aos-once="true"
-        className="absolute top-[85%] w-[90%] p-[40px] rounded-[20px] bg-white shadow-adrians-horizontal-card grid grid-cols-5 gap-[20px] h-fit max-xl:grid-cols-2 max-sm:grid-cols-1 max-sm:w-[80vw] max-sm:p-[20px]"
+        className="scroll-to-book-tour absolute top-[85%] w-[90%] p-[40px] rounded-[20px] bg-white shadow-adrians-horizontal-card grid grid-cols-5 gap-[20px] h-fit max-xl:grid-cols-2 max-sm:grid-cols-1 max-sm:w-[80vw] max-sm:p-[20px] transition-all duration-300"
       >
         {/* Date Picker */}
         <div className="flex relative flex-col gap-[20px] w-full justify-center items-center">
