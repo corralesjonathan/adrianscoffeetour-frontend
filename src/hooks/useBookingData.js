@@ -49,10 +49,34 @@ export const useBookingData = () => {
     return map;
   }, {});
 
+  // Mapa para obtener el ID del objeto padre disponible basado en la fecha y el horario
+  const dateToIdMap = data.reduce((map, item) => {
+    const dateStr = item.date.date;
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    const isoDate = date.toISOString().split("T")[0];
+    const scheduleId = item.schedule.id;
+    
+    // La clave será una combinación de la fecha ISO y el ID del horario
+    const key = `${isoDate}|${scheduleId}`;
+    
+    // Guardar el ID del objeto padre (el registro completo available-date)
+    map[key] = item.id;
+    
+    // También guardamos una versión solo con la fecha para buscar por fecha cuando no tenemos horario
+    if (!map[isoDate]) {
+      map[isoDate] = item.id;
+    }
+    
+    return map;
+  }, {});
+
   return {
     tourInfo,
     availableDates,
     scheduleMapByDate,
+    dateToIdMap, // Añadimos el mapa para buscar IDs de fechas
+    rawData: data, // Exponemos los datos originales por si se necesitan
     loading,
     error
   };

@@ -65,10 +65,10 @@ export function Checkout() {
               
               <div>
                 <p className="text-adrians-brown mb-2">
-                  <span className="font-medium">Adults:</span> {bookingData.adults || "0"}
+                  <span className="font-medium">Adults:</span> {bookingData.adults || "0"}x${bookingData.adultPrice || "0"}
                 </p>
                 <p className="text-adrians-brown mb-2">
-                  <span className="font-medium">Children:</span> {bookingData.children || "0"}
+                  <span className="font-medium">Children:</span> {bookingData.children || "0"}x${bookingData.childPrice || "0"}
                 </p>
               </div>
             </div>

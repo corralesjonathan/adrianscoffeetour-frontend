@@ -19,7 +19,7 @@ import { useBookingForm } from "../../hooks/useBookingForm";
 
 export function BookTour() {
   // Initialize custom hooks
-  const { tourInfo, availableDates, scheduleMapByDate, loading, error } = useBookingData();
+  const { tourInfo, availableDates, scheduleMapByDate, dateToIdMap, loading, error } = useBookingData();
   const { dateError, scheduleError, validateBooking, clearErrors } = useBookingValidation();
   const { formState, actions } = useBookingForm(tourInfo);
 
@@ -210,7 +210,7 @@ export function BookTour() {
             onClose={() => actions.setShowSummary(false)}
             onCheckout={() => {
               actions.setShowSummary(false);
-              actions.handleCheckout(total, taxes);
+              actions.handleCheckout(total, taxes, dateToIdMap);
             }}
           />
         )}
