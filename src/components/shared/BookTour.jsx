@@ -1,4 +1,5 @@
 // Core imports
+import { useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Component imports
@@ -8,6 +9,7 @@ import { Minus_btn } from "../navigation/Minus_btn";
 import { CalendarPicker } from "./CalendarPicker.jsx";
 import { Tooltip } from "react-tooltip";
 import { BookingSummary } from "./BookingSummary";
+import { Spinner } from "./Spinner";
 
 // Custom hooks imports
 import { useBookingData } from "../../hooks/useBookingData";
@@ -20,7 +22,15 @@ export function BookTour() {
   const { tourInfo, availableDates, scheduleMapByDate, loading, error } = useBookingData();
   const { dateError, scheduleError, validateBooking, clearErrors } = useBookingValidation();
   const { formState, actions } = useBookingForm(tourInfo);
-  
+
+  // Handle date selection and automatically open schedule selector
+  const handleDateSelection = (date) => {
+    actions.handleDateSelect(date);
+    actions.setShowCalendar(false);
+    // Automatically open schedule selector after date is selected
+    setTimeout(() => actions.setOpenSchedule(true), 100);
+  };
+
   // Calculate total and taxes based on selected people
   const { total, taxes } = useBookingCalculations({
     adults: formState.adults,
@@ -42,8 +52,14 @@ export function BookTour() {
   };
 
   // Loading and error states
-  if (loading) return <p>Loading data...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) return <Spinner />;
+  if (error) return (
+    <div className="fixed inset-0 z-[9999] backdrop-blur-sm bg-black/20 flex justify-center items-center">
+      <div className="bg-white p-8 rounded-[20px] shadow-adrians-horizontal-card">
+        <p className="text-adrians-red text-xl">Error: {error}</p>
+      </div>
+    </div>
+  );
 
   // Get available schedules for selected date
   const selectedDateString = formState.selected ? formState.selected.toISOString().split("T")[0] : null;
@@ -84,7 +100,7 @@ export function BookTour() {
           <AnimatePresence>
             <CalendarPicker
               selected={formState.selected}
-              setSelected={actions.handleDateSelect}
+              setSelected={handleDateSelection}
               availableDates={availableDates}
               showCalendar={formState.showCalendar}
               setShowCalendar={actions.setShowCalendar}
