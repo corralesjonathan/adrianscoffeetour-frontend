@@ -1,3 +1,4 @@
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './index.css'
 import AOS from "aos";
@@ -12,6 +13,12 @@ import { UnderConstruction } from './pages/UnderConstruction.jsx';
 import { ScrollToTop } from './components/shared/ScrollToTop.jsx';
 import { FloatingWhatsApp } from 'react-floating-whatsapp'
 import { BookingProvider } from './context/BookingContext'
+
+const initialOptions = {
+  "client-id": "YOUR-CLIENT-ID-HERE",
+  currency: "USD",
+  intent: "capture",
+};
 
 AOS.init();
 function App() {
