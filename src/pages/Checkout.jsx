@@ -96,21 +96,20 @@ export function Checkout() {
       
       <div className="
         flex flex-col justify-center items-center gap-[40px] 
-        w-[80vw] m-auto py-[40px] min-h-screen mt-[40px]
-        max-xl:w-[90vw]
+        w-[80vw] m-auto py-[40px] min-h-screen mt-[20px]
+        max-xl:w-[90vw] max-lg:mt-[60px]
       ">
-        <h1 className="text-3xl font-bold text-adrians-red text-center mb-4">Checkout</h1>
+        <h1 className="text-3xl font-bold text-adrians-red text-center">Checkout</h1>
         
         <div className="
-          grid grid-cols-1 lg:grid-cols-2 gap-8 w-full
-          max-lg:gap-[40px]
+          grid grid-cols-1 lg:grid-cols-2 gap-[60px] w-full
+          max-lg:gap-[40px] 
         ">
           {/* Columna izquierda - Billing Information */}
           <div 
             data-aos="fade-up"
             data-aos-duration="1000"
             data-aos-once="true"
-            className="p-[40px]"
           >
             <h2 className="text-xl font-semibold text-adrians-red mb-6">Billing Information</h2>
             
@@ -402,7 +401,6 @@ export function Checkout() {
             data-aos-duration="1000"
             data-aos-delay="200"
             data-aos-once="true"
-            className="p-[40px] "
           >
             <h2 className="text-xl font-semibold text-adrians-red mb-6">Booking Details</h2>
             
@@ -444,12 +442,14 @@ export function Checkout() {
         {/* Footer minimal */}
         <div 
           className="
-            flex items-center justify-center gap-4 text-sm text-adrians-brown/70 mt-8
+            flex w-full items-cesnter justify-start  gap-4 text-sm text-adrians-brown/70 mt-[20px]
             max-sm:flex-col max-sm:gap-2
           "
         >
-          <span>&copy; 2025 All Rights Reserved</span>
-          <div className="flex items-center gap-4 max-sm:gap-3">
+          <span>&copy; {new Date().getFullYear()} All Rights Reserved</span>
+          <div className="flex items-center gap-4 max-sm:gap-3
+            max-sm:flex-col max-sm:items-start
+            max-sm:mt-2">
             <Link to="/terms" className="hover:text-adrians-red transition-colors duration-300">Terms</Link>
             <Link to="/privacy" className="hover:text-adrians-red transition-colors duration-300">Privacy</Link>
           </div>
