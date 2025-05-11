@@ -1,12 +1,19 @@
 import { Navbar } from "../components/shared/Navbar.jsx";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useBooking } from "../context/BookingContext";
+import { countryCodes, defaultCountryCode } from "../data/countryCodes.js";
 
 export function Checkout() {
   const navigate = useNavigate();
   // Obtener los datos directamente del contexto
   const { bookingData } = useBooking();
+  
+  // Estados para el selector de código de país
+  const [selectedCountryCode, setSelectedCountryCode] = useState(defaultCountryCode);
+  const [isCountryCodeOpen, setIsCountryCodeOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredCountries, setFilteredCountries] = useState(countryCodes);
 
   useEffect(() => {
     document.title = "Checkout - Adrian's Coffee Tour";
@@ -93,21 +100,84 @@ export function Checkout() {
               </div>
               
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-adrians-brown mb-1">Phone</label>
-                <input 
-                  type="tel" 
-                  id="phone"
-                  className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
-                />
-              </div>
-              
-              <div>
                 <label htmlFor="address" className="block text-sm font-medium text-adrians-brown mb-1">Address</label>
                 <input 
                   type="text" 
                   id="address"
                   className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
                 />
+              </div>
+              
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-adrians-brown mb-1">Phone</label>
+                <div className="relative flex items-center">
+                  {/* Selector de código de país */}
+                  <div className="relative w-[30%] mr-2">
+                    <div 
+                      onClick={() => setIsCountryCodeOpen(!isCountryCodeOpen)}
+                      className="flex items-center justify-between p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300 cursor-pointer"
+                    >
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                        {selectedCountryCode}
+                      </span>
+                      <span className="text-adrians-red text-xs ml-1">
+                        ▼
+                      </span>
+                    </div>
+                    
+                    {/* Dropdown para los códigos de país */}
+                    {isCountryCodeOpen && (
+                      <div className="absolute z-10 w-[300px] mt-1 bg-white border border-adrians-brown/10 rounded-[15px] shadow-lg max-h-[300px] overflow-y-auto">
+                        <div className="sticky top-0 bg-white p-2 border-b border-adrians-brown/10">
+                          <input 
+                            type="text" 
+                            placeholder="Search country..."
+                            className="w-full p-2 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-1 focus:ring-adrians-red focus:border-transparent"
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              const query = e.target.value.toLowerCase();
+                              setSearchQuery(query);
+                              const filtered = countryCodes.filter(country => 
+                                country.country.toLowerCase().includes(query) || 
+                                country.code.toLowerCase().includes(query)
+                              );
+                              setFilteredCountries(filtered);
+                            }}
+                            value={searchQuery}
+                          />
+                        </div>
+                        {(searchQuery ? filteredCountries : countryCodes).map((country, index) => (
+                          <div
+                            key={`${country.code}-${index}`}
+                            onClick={() => {
+                              setSelectedCountryCode(country.code);
+                              setIsCountryCodeOpen(false);
+                              setSearchQuery(""); // Limpiar la búsqueda al seleccionar
+                              setFilteredCountries(countryCodes);
+                            }}
+                            className="flex items-center p-2 cursor-pointer hover:bg-adrians-red/5 transition-all duration-200"
+                          >
+                            <span className="mr-2 text-gray-700">{country.country}</span>
+                            <span className="text-xs text-gray-500">{country.code}</span>
+                          </div>
+                        ))}
+                        {searchQuery && filteredCountries.length === 0 && (
+                          <div className="p-3 text-center text-gray-500">
+                            No countries found matching "{searchQuery}"
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Input para el número de teléfono */}
+                  <input 
+                    type="tel" 
+                    id="phone"
+                    className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+                    placeholder="123456789"
+                  />
+                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -121,22 +191,31 @@ export function Checkout() {
                 </div>
                 
                 <div>
-                  <label htmlFor="zipCode" className="block text-sm font-medium text-adrians-brown mb-1">ZIP/Postal Code</label>
+                  <label htmlFor="state" className="block text-sm font-medium text-adrians-brown mb-1">State / Province</label>
                   <input 
                     type="text" 
-                    id="zipCode"
+                    id="state"
                     className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-adrians-brown mb-1">Country</label>
+                  <label htmlFor="zip" className="block text-sm font-medium text-adrians-brown mb-1">ZIP / Postal Code</label>
                   <input 
                     type="text" 
-                    id="country"
+                    id="zip"
                     className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
                   />
                 </div>
+              </div>
+              
+              <div>
+                <label htmlFor="country" className="block text-sm font-medium text-adrians-brown mb-1">Country</label>
+                <input 
+                  type="text" 
+                  id="country"
+                  className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+                />
               </div>
             </div>
           </div>
