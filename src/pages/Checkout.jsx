@@ -43,12 +43,11 @@ export function Checkout() {
       <Navbar />
       
       <div className="
-        flex flex-col justify-center items-center gap-[60px] 
-        w-[80vw] m-auto py-[60px] min-h-screen mt-[100px]
+        flex flex-col justify-center items-center gap-[40px] 
+        w-[80vw] m-auto py-[40px] min-h-screen mt-[40px]
         max-xl:w-[90vw]
-        max-sm:gap-[40px]
       ">
-        <h1 className="text-3xl font-bold text-adrians-red text-center mb-4">Complete Your Reservation</h1>
+        <h1 className="text-3xl font-bold text-adrians-red text-center mb-4">Checkout</h1>
         
         <div className="
           grid grid-cols-1 lg:grid-cols-2 gap-8 w-full
@@ -59,7 +58,7 @@ export function Checkout() {
             data-aos="fade-up"
             data-aos-duration="1000"
             data-aos-once="true"
-            className="bg-white rounded-[30px] shadow-md p-8"
+            className="p-[40px]"
           >
             <h2 className="text-xl font-semibold text-adrians-red mb-6">Billing Information</h2>
             
@@ -148,7 +147,7 @@ export function Checkout() {
             data-aos-duration="1000"
             data-aos-delay="200"
             data-aos-once="true"
-            className="bg-white rounded-[30px] shadow-md p-8"
+            className="p-[40px] "
           >
             <h2 className="text-xl font-semibold text-adrians-red mb-6">Booking Details</h2>
             
