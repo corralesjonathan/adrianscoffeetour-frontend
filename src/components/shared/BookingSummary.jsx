@@ -20,12 +20,6 @@ export function BookingSummary({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <button
-        onClick={onClose}
-        className="absolute cursor-pointer -top-[-20px] -right-[-20px] p-[5px] bg-black/20 rounded-full text-white hover:bg-black/50 transition-all duration-300 ease-in-out"
-      >
-        <IoClose className="text-[30px]" />
-      </button>
 
       <motion.div
         className="relative flex flex-col gap-[40px] p-[40px] shadow-adrians-horizontal-card w-[60vw] max-lg:w-[80vw] bg-white rounded-[40px]"
@@ -33,7 +27,14 @@ export function BookingSummary({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.85 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-      >
+      > 
+        <button
+        onClick={onClose}
+        className="absolute cursor-pointer flex justify-center items-center w-[60px] h-[60px] p-[10px] -top-0 right-0 shadow-adrians-red hover:shadow-adrians-red-hover bg-adrians-red rounded-bl-[40px] rounded-tr-[40px] text-white hover:bg-adrians-red/80 transition-all duration-300 ease-in-out"
+        >
+          <IoClose className="text-[30px]" />
+        </button>
+
         <h2 className="text-[36px] font-semibold text-adrians-red">Reservation Summary</h2>
 
         <div className="flex flex-col gap-[20px]">
