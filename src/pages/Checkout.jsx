@@ -3,17 +3,62 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useBooking } from "../context/BookingContext";
 import { countryCodes, defaultCountryCode } from "../data/countryCodes.js";
+import { countries, defaultCountry } from "../data/countries.js";
+import { getStatesByCountry, getGenericState } from "../data/states.js";
 
 export function Checkout() {
   const navigate = useNavigate();
   // Obtener los datos directamente del contexto
   const { bookingData } = useBooking();
   
-  // Estados para el selector de código de país
+  // Estados para el selector de código de país (teléfono)
   const [selectedCountryCode, setSelectedCountryCode] = useState(defaultCountryCode);
   const [isCountryCodeOpen, setIsCountryCodeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCountries, setFilteredCountries] = useState(countryCodes);
+  
+  // Estados para el selector de país (ISO Alpha-2)
+  const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [countrySearchQuery, setCountrySearchQuery] = useState("");
+  const [filteredCountriesList, setFilteredCountriesList] = useState(countries);
+  
+  // Estados para el selector de estado/provincia
+  const [selectedState, setSelectedState] = useState("");
+  const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false);
+  const [stateSearchQuery, setStateSearchQuery] = useState("");
+  const [availableStates, setAvailableStates] = useState([]);
+  const [filteredStates, setFilteredStates] = useState([]);
+
+  // Efecto para cargar estados/provincias cuando cambia el país seleccionado
+  useEffect(() => {
+    if (selectedCountry) {
+      const states = getStatesByCountry(selectedCountry);
+      setAvailableStates(states);
+      setFilteredStates(states);
+      
+      // Resetear el estado seleccionado
+      if (states.length > 0) {
+        setSelectedState(states[0].code);
+      } else {
+        const genericState = getGenericState(selectedCountry);
+        setSelectedState(genericState.code);
+      }
+    }
+  }, [selectedCountry]);
+  
+  // Efecto para filtrar estados cuando se busca
+  useEffect(() => {
+    if (stateSearchQuery) {
+      const filtered = availableStates.filter(state => 
+        state.name.toLowerCase().includes(stateSearchQuery.toLowerCase()) ||
+        state.code.toLowerCase().includes(stateSearchQuery.toLowerCase())
+      );
+      setFilteredStates(filtered);
+    } else {
+      setFilteredStates(availableStates);
+    }
+  }, [stateSearchQuery, availableStates]);
 
   useEffect(() => {
     document.title = "Checkout - Adrian's Coffee Tour";
@@ -100,15 +145,6 @@ export function Checkout() {
               </div>
               
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-adrians-brown mb-1">Address</label>
-                <input 
-                  type="text" 
-                  id="address"
-                  className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
-                />
-              </div>
-              
-              <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-adrians-brown mb-1">Phone</label>
                 <div className="relative flex items-center">
                   {/* Selector de código de país */}
@@ -120,9 +156,14 @@ export function Checkout() {
                       <span className="whitespace-nowrap overflow-hidden text-ellipsis">
                         {selectedCountryCode}
                       </span>
-                      <span className="text-adrians-red text-xs ml-1">
-                        ▼
-                      </span>
+                      <svg 
+                        className={`w-4 h-4 ml-2 text-adrians-red transition-transform duration-200 ${isCountryCodeOpen ? "rotate-180" : ""}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
                     </div>
                     
                     {/* Dropdown para los códigos de país */}
@@ -180,6 +221,76 @@ export function Checkout() {
                 </div>
               </div>
               
+              <div>
+                <label htmlFor="country" className="block text-sm font-medium text-adrians-brown mb-1">Country</label>
+                <div className="relative w-full">
+                  <div 
+                    onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                    className="flex items-center justify-between p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300 cursor-pointer"
+                  >
+                    <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                      {selectedCountry && countries.find(c => c.code === selectedCountry)?.name || defaultCountry}
+                    </span>
+                    <svg 
+                      className={`w-4 h-4 ml-2 text-adrians-red transition-transform duration-200 ${isCountryDropdownOpen ? "rotate-180" : ""}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                  
+                  {isCountryDropdownOpen && (
+                    <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-adrians-brown/10 rounded-[15px] shadow-lg max-h-[300px] overflow-y-auto">
+                      <div className="sticky top-0 bg-white p-2 border-b border-adrians-brown/10">
+                        <input 
+                          type="text" 
+                          placeholder="Search country..."
+                          className="w-full p-2 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-1 focus:ring-adrians-red focus:border-transparent"
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            setCountrySearchQuery(e.target.value.toLowerCase());
+                            const filtered = countries.filter(country => 
+                              country.name.toLowerCase().includes(e.target.value.toLowerCase()) || 
+                              country.code.toLowerCase().includes(e.target.value.toLowerCase())
+                            );
+                            setFilteredCountriesList(filtered);
+                          }}
+                          value={countrySearchQuery}
+                        />
+                      </div>
+                      {filteredCountriesList.map((country) => (
+                        <div
+                          key={country.code}
+                          onClick={() => {
+                            setSelectedCountry(country.code);
+                            setIsCountryDropdownOpen(false);
+                            setCountrySearchQuery("");
+                            setFilteredCountriesList(countries);
+                          }}
+                          className="p-3 cursor-pointer hover:bg-adrians-red/5 transition-all duration-200"
+                        >
+                          <span className="text-gray-700">{country.name}</span>
+                          <span className="ml-2 text-xs text-gray-500">{country.code}</span>
+                        </div>
+                      ))}
+                      {countrySearchQuery && filteredCountriesList.length === 0 && (
+                        <div className="p-3 text-center text-gray-500">
+                          No countries found matching "{countrySearchQuery}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <input 
+                    type="hidden" 
+                    id="country"
+                    name="country"
+                    value={selectedCountry}
+                  />
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="city" className="block text-sm font-medium text-adrians-brown mb-1">City</label>
@@ -192,28 +303,93 @@ export function Checkout() {
                 
                 <div>
                   <label htmlFor="state" className="block text-sm font-medium text-adrians-brown mb-1">State / Province</label>
-                  <input 
-                    type="text" 
-                    id="state"
-                    className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
-                  />
+                  <div className="relative">
+                    <div 
+                      onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
+                      className="w-full p-3 border border-adrians-brown/30 rounded-full flex justify-between items-center cursor-pointer hover:border-adrians-red transition-all duration-300"
+                    >
+                      <span className="text-adrians-brown overflow-hidden text-ellipsis">
+                        {availableStates.find(s => s.code === selectedState)?.name || 
+                         getGenericState(selectedCountry).name}
+                      </span>
+                      <svg 
+                        className={`w-4 h-4 ml-2 text-adrians-red transition-transform duration-200 ${isStateDropdownOpen ? "rotate-180" : ""}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                    
+                    {isStateDropdownOpen && (
+                      <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-adrians-brown/10 rounded-[15px] shadow-lg max-h-[300px] overflow-y-auto">
+                        {availableStates.length > 0 ? (
+                          <>
+                            <div className="sticky top-0 bg-white p-2 border-b border-adrians-brown/10">
+                              <input 
+                                type="text" 
+                                placeholder="Search state/province..."
+                                className="w-full p-2 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-1 focus:ring-adrians-red focus:border-transparent"
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => {
+                                  const query = e.target.value.toLowerCase();
+                                  setStateSearchQuery(query);
+                                }}
+                                value={stateSearchQuery}
+                              />
+                            </div>
+                            {filteredStates.map((state) => (
+                              <div
+                                key={state.code}
+                                onClick={() => {
+                                  setSelectedState(state.code);
+                                  setIsStateDropdownOpen(false);
+                                  setStateSearchQuery("");
+                                }}
+                                className="p-3 cursor-pointer hover:bg-adrians-red/5 transition-all duration-200"
+                              >
+                                <span className="text-gray-700">{state.name}</span>
+                                <span className="ml-2 text-xs text-gray-500">{state.code}</span>
+                              </div>
+                            ))}
+                            {stateSearchQuery && filteredStates.length === 0 && (
+                              <div className="p-3 text-center text-gray-500">
+                                No states/provinces found matching "{stateSearchQuery}"
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="p-3 text-center text-gray-500">
+                            No states/provinces available for this country
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <input 
+                      type="hidden" 
+                      id="state"
+                      name="state"
+                      value={selectedState}
+                    />
+                  </div>
                 </div>
                 
                 <div>
-                  <label htmlFor="zip" className="block text-sm font-medium text-adrians-brown mb-1">ZIP / Postal Code</label>
+                  <label htmlFor="zipCode" className="block text-sm font-medium text-adrians-brown mb-1">Postal / Zip Code</label>
                   <input 
                     type="text" 
-                    id="zip"
+                    id="zipCode"
                     className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
                   />
                 </div>
               </div>
               
               <div>
-                <label htmlFor="country" className="block text-sm font-medium text-adrians-brown mb-1">Country</label>
+                <label htmlFor="address" className="block text-sm font-medium text-adrians-brown mb-1">Address</label>
                 <input 
                   type="text" 
-                  id="country"
+                  id="address"
                   className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
                 />
               </div>
