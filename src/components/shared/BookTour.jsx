@@ -1,122 +1,52 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// Core imports
 import { motion, AnimatePresence } from "framer-motion";
-import { IoClose } from "react-icons/io5";
 
+// Component imports
 import { Book_btn } from "../navigation/Book_btn";
 import { Plus_btn } from "../navigation/Plus_btn";
 import { Minus_btn } from "../navigation/Minus_btn";
 import { CalendarPicker } from "./CalendarPicker.jsx";
 import { Tooltip } from "react-tooltip";
+import { BookingSummary } from "./BookingSummary";
 
+// Custom hooks imports
 import { useBookingData } from "../../hooks/useBookingData";
 import { useBookingValidation } from "../../hooks/useBookingValidation";
 import { useBookingCalculations } from "../../hooks/useBookingCalculations";
+import { useBookingForm } from "../../hooks/useBookingForm";
 
 export function BookTour() {
-  const navigate = useNavigate();
-  
-  // Custom hooks
+  // Initialize custom hooks
   const { tourInfo, availableDates, scheduleMapByDate, loading, error } = useBookingData();
   const { dateError, scheduleError, validateBooking, clearErrors } = useBookingValidation();
+  const { formState, actions } = useBookingForm(tourInfo);
   
-  // UI States
-  const [selected, setSelected] = useState();
-  const [showCalendar, setShowCalendar] = useState(false);
-  const calendarRef = useRef(null);
-
-  const [selectedSchedule, setSelectedSchedule] = useState(null);
-  const [openSchedule, setOpenSchedule] = useState(false);
-  const scheduleRef = useRef(null);
-
-  const [adults, setAdults] = useState(0);
-  const [children, setChildren] = useState(0);
-  const [showSummary, setShowSummary] = useState(false);
-
-  // Initialize counters when tour info is loaded
-  useEffect(() => {
-    if (tourInfo) {
-      setAdults(tourInfo.min_adults || 0);
-      setChildren(tourInfo.min_children || 0);
-    }
-  }, [tourInfo]);
-
-  // Price calculations
+  // Calculate total and taxes based on selected people
   const { total, taxes } = useBookingCalculations({
-    adults,
-    children,
-    adultPrice: tourInfo.adult_price,
-    childPrice: tourInfo.child_price,
-    taxRate: tourInfo.tax
+    adults: formState.adults,
+    children: formState.children,
+    adultPrice: tourInfo?.adult_price,
+    childPrice: tourInfo?.child_price,
+    taxRate: tourInfo?.tax
   });
 
-  // Handle validation and summary display
+  // Validate form and show booking summary
   const validateAndShowSummary = () => {
-    const isValid = validateBooking({ selected, selectedSchedule });
+    const isValid = validateBooking({ 
+      selected: formState.selected, 
+      selectedSchedule: formState.selectedSchedule 
+    });
     if (isValid) {
-      setShowSummary(true);
+      actions.setShowSummary(true);
     }
   };
 
-  // Handle checkout navigation
-  const handleCheckout = () => {
-    const bookingData = {
-      date: selected,
-      schedule: selectedSchedule,
-      adults,
-      children,
-      total,
-      taxes
-    };
-    
-    // Store booking data in sessionStorage for checkout
-    sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
-    navigate('/checkout');
-  };
-
-  // Counter handlers with validation
-  const handleIncrementAdults = () => {
-    if (adults + children < tourInfo.max_people) {
-      setAdults(prev => prev + 1);
-    }
-  };
-
-  const handleIncrementChildren = () => {
-    if (adults + children < tourInfo.max_people) {
-      setChildren(prev => prev + 1);
-    }
-  };
-
-  const handleDecrementAdults = () => {
-    if (adults > tourInfo.min_adults) {
-      setAdults(prev => prev - 1);
-    }
-  };
-
-  const handleDecrementChildren = () => {
-    if (children > tourInfo.min_children) {
-      setChildren(prev => prev - 1);
-    }
-  };
-
-  // Handle date selection
-  const handleDateSelect = (date) => {
-    setSelected(date);
-    setSelectedSchedule(null); // Reset schedule when date changes
-    clearErrors();
-  };
-
-  // Handle schedule selection
-  const handleScheduleSelect = (schedule) => {
-    setSelectedSchedule(schedule);
-    setOpenSchedule(false);
-    clearErrors();
-  };
-
+  // Loading and error states
   if (loading) return <p>Loading data...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  const selectedDateString = selected ? selected.toISOString().split("T")[0] : null;
+  // Get available schedules for selected date
+  const selectedDateString = formState.selected ? formState.selected.toISOString().split("T")[0] : null;
   const filteredSchedules = selectedDateString ? scheduleMapByDate[selectedDateString] || [] : [];
 
   return (
@@ -143,8 +73,8 @@ export function BookTour() {
             type="text"
             placeholder="Choose a date"
             readOnly
-            onClick={() => setShowCalendar(!showCalendar)}
-            value={selected ? selected.toLocaleDateString("en-US", {
+            onClick={() => actions.setShowCalendar(!formState.showCalendar)}
+            value={formState.selected ? formState.selected.toLocaleDateString("en-US", {
               month: "long",
               day: "numeric",
               year: "numeric",
@@ -153,18 +83,17 @@ export function BookTour() {
           />
           <AnimatePresence>
             <CalendarPicker
-              selected={selected}
-              setSelected={handleDateSelect}
+              selected={formState.selected}
+              setSelected={actions.handleDateSelect}
               availableDates={availableDates}
-              showCalendar={showCalendar}
-              setShowCalendar={setShowCalendar}
-              calendarRef={calendarRef}
+              showCalendar={formState.showCalendar}
+              setShowCalendar={actions.setShowCalendar}
             />
           </AnimatePresence>
         </div>
 
         {/* Schedule Picker */}
-        <div className="flex flex-col gap-[20px] w-full justify-center items-center relative" ref={scheduleRef}>
+        <div className="flex flex-col gap-[20px] w-full justify-center items-center relative">
           {scheduleError && (
             <div className="absolute -bottom-[30px] left-0 w-full p-[5px]">
               <p className="text-[12px] text-adrians-red">{scheduleError}</p>
@@ -176,15 +105,15 @@ export function BookTour() {
           </div>
           <div
             className="text-adrians-brown hover:border-adrians-red transition-all duration-300 ease-in-out cursor-pointer outline-none text-[14px] font-regular flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full"
-            onClick={() => setOpenSchedule(!openSchedule)}
+            onClick={() => actions.setOpenSchedule(!formState.openSchedule)}
           >
-            {selectedSchedule?.time || "Choose a schedule"}
-            <svg className={`w-4 h-4 ml-2 transition-transform duration-200 ${openSchedule ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {formState.selectedSchedule?.time || "Choose a schedule"}
+            <svg className={`w-4 h-4 ml-2 transition-transform duration-200 ${formState.openSchedule ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
             </svg>
           </div>
           <AnimatePresence>
-            {openSchedule && (
+            {formState.openSchedule && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: -10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -198,8 +127,13 @@ export function BookTour() {
                   filteredSchedules.map((schedule) => (
                     <div
                       key={schedule.id}
-                      onClick={() => handleScheduleSelect(schedule)}
-                      className="text-adrians-brown px-4 py-2 rounded-[10px] hover:bg-adrians-red/5 hover:text-adrians-red transition-all cursor-pointer"
+                      onClick={() => {
+                        actions.handleScheduleSelect(schedule);
+                        clearErrors();
+                      }}
+                      className={`text-adrians-brown px-4 py-2 rounded-[10px] hover:bg-adrians-red/5 hover:text-adrians-red transition-all cursor-pointer ${
+                        formState.selectedSchedule?.id === schedule.id ? "bg-adrians-red/5 text-adrians-red" : ""
+                      }`}
                     >
                       {schedule.time}
                     </div>
@@ -217,9 +151,9 @@ export function BookTour() {
             <h3 className="text-[20px] font-semibold text-adrians-brown">Adults</h3>
           </div>
           <div className="flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full transition-all duration-300 ease-in-out hover:border-adrians-red">
-            <Minus_btn onclick={handleDecrementAdults} />
-            <input type="number" value={adults} readOnly className="w-full text-center no-spinner outline-none text-[14px] font-regular text-adrians-brown" />
-            <Plus_btn onclick={handleIncrementAdults} />
+            <Minus_btn onclick={actions.handleDecrementAdults} />
+            <input type="number" value={formState.adults} readOnly className="w-full text-center no-spinner outline-none text-[14px] font-regular text-adrians-brown" />
+            <Plus_btn onclick={actions.handleIncrementAdults} />
           </div>
         </div>
 
@@ -234,9 +168,9 @@ export function BookTour() {
             <Tooltip anchorSelect=".element" content="Children under 12 years old." place="bottom" />
           </div>
           <div className="flex items-center justify-between w-full p-[10px] border-[0.5px] border-adrians-brown rounded-full transition-all duration-300 ease-in-out hover:border-adrians-red">
-            <Minus_btn onclick={handleDecrementChildren} />
-            <input type="number" value={children} readOnly className="w-full text-center no-spinner outline-none text-[14px] font-regular text-adrians-brown" />
-            <Plus_btn onclick={handleIncrementChildren} />
+            <Minus_btn onclick={actions.handleDecrementChildren} />
+            <input type="number" value={formState.children} readOnly className="w-full text-center no-spinner outline-none text-[14px] font-regular text-adrians-brown" />
+            <Plus_btn onclick={actions.handleIncrementChildren} />
           </div>
         </div>
 
@@ -246,74 +180,32 @@ export function BookTour() {
         </div>
       </div>
 
-      {/* Modal Summary Overlay with animation */}
+      {/* Booking Summary Modal */}
       <AnimatePresence>
-        {showSummary && (
-          <motion.div
-            className="fixed inset-0 z-[51] backdrop-blur-sm bg-black/20 flex justify-center items-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <button
-              onClick={() => setShowSummary(false)}
-              className="absolute cursor-pointer -top-[-20px] -right-[-20px] p-[5px] bg-black/20 rounded-full text-white
-              hover:bg-black/50
-              transition-all duration-300 ease-in-out"
-            >
-              <IoClose className="text-[30px]" />
-            </button>
-
-            <motion.div
-              className="relative flex flex-col gap-[40px] p-[40px] shadow-adrians-horizontal-card w-[60vw] max-lg:w-[80vw] bg-white rounded-[40px] "
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.85 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-              <h2 className="text-[36px] font-semibold text-adrians-red">Reservation Summary</h2>
-
-              <div className="flex flex-col gap-[20px]">
-                <p className="text-[18px] font-regular text-adrians-brown"><strong>Date:</strong> {selected?.toLocaleDateString()}</p>
-                <p className="text-[18px] font-regular text-adrians-brown"><strong>Schedule:</strong> {selectedSchedule?.time}</p>
-                <p className="text-[18px] font-regular text-adrians-brown"><strong>Adults:</strong> {adults} x ${tourInfo.adult_price}</p>
-                <p className="text-[18px] font-regular text-adrians-brown"><strong>Children:</strong> {children} x ${tourInfo.child_price}</p>
-              </div>
-
-              <span className="w-full h-[2px] bg-adrians-red block rounded-full"></span>
-
-              <div className="flex flex-col gap-[10px]">
-                <p className="text-[18px] font-regular text-adrians-brown">
-                  Taxes: ${taxes.toFixed(2)}
-                </p>
-                <p className="text-[22px] font-semibold text-adrians-red">
-                  Total: ${total.toFixed(2)}
-                </p>
-              </div>
-
-
-              <div className="flex justify-between mt-6">
-                <button
-                  onClick={() => setShowSummary(false)}
-                  className="cursor-pointer text-[18px] font-regular underline text-adrians-red hover:font-medium transition-all duration-300 ease-in-out"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSummary(false);
-                    handleCheckout();
-                  }}
-                  className="cursor-pointer text-[18px] font-semibold px-[20px] py-[10px] bg-adrians-red shadow-adrians-btn-shadow hover:shadow-adrians-btn-shadow-hover hover:scale-105 text-white rounded-full transition-all duration-300 ease-in-out"
-                >
-                  Checkout
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
+        {formState.showSummary && (
+          <BookingSummary
+            selected={formState.selected}
+            selectedSchedule={formState.selectedSchedule}
+            adults={formState.adults}
+            children={formState.children}
+            tourInfo={tourInfo}
+            total={total}
+            taxes={taxes}
+            onClose={() => actions.setShowSummary(false)}
+            onCheckout={() => {
+              actions.setShowSummary(false);
+              actions.handleCheckout(total, taxes);
+            }}
+          />
         )}
       </AnimatePresence>
 
+      <Tooltip
+        id="book-tooltip"
+        place="left"
+        content="Book a tour"
+        className="!bg-adrians-brown !text-white !px-[15px] !py-[8px] !rounded-[10px] !text-[14px] !font-regular"
+      />
     </>
   );
 }

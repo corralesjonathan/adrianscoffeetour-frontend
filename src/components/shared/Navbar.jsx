@@ -30,7 +30,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <nav className="z-[50] w-full flex fixed top-0 right-0 h-[100px] bg-adrians-bg py-[20px]">
+    <nav className="z-[40] w-full flex fixed top-0 right-0 h-[100px] bg-adrians-bg py-[20px]">
       <div 
       className="w-[90vw] m-auto flex justify-between items-center
       ">
