@@ -39,6 +39,9 @@ export function Hero() {
   return (
     <>
       <div
+        data-aos="zoom-in"
+        data-aos-duration="1000"
+        data-aos-once="true"
         className="
           flex flex-col items-center justify-start gap-[20px] 
           w-[80vw] m-auto mt-[120px] px-[80px] py-[120px] 
