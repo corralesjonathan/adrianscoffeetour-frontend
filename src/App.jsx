@@ -11,23 +11,26 @@ import { Checkout } from './pages/Checkout.jsx';
 import { UnderConstruction } from './pages/UnderConstruction.jsx';
 import { ScrollToTop } from './components/shared/ScrollToTop.jsx';
 import { FloatingWhatsApp } from 'react-floating-whatsapp'
+import { BookingProvider } from './context/BookingContext'
 
 AOS.init();
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <FloatingWhatsApp accountName='Adrians Coffee Tour' phoneNumber='50688624063' statusMessage='Typically replies within 30 minutes' chatMessage='Hello, how can we help?' allowEsc allowClickAway avatar='./icons/wa_profile.svg'/> 
-      <Routes>
-        <Route path="/under-construction" element={<UnderConstruction />} />
-        <Route path="/" element={<Home />} />      
-        <Route path="/tour" element={<Tour />} /> 
-        <Route path="/about" element={<About />} />
-        <Route path="/products" element={<Products />} /> 
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/checkout" element={<Checkout />} />
-      </Routes>
-    </Router>
+    <BookingProvider>
+      <Router>
+        <ScrollToTop />
+        <FloatingWhatsApp accountName='Adrians Coffee Tour' phoneNumber='50688624063' statusMessage='Typically replies within 30 minutes' chatMessage='Hello, how can we help?' allowEsc allowClickAway avatar='./icons/wa_profile.svg'/> 
+        <Routes>
+          <Route path="/under-construction" element={<UnderConstruction />} />
+          <Route path="/" element={<Home />} />      
+          <Route path="/tour" element={<Tour />} /> 
+          <Route path="/about" element={<About />} />
+          <Route path="/products" element={<Products />} /> 
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/checkout" element={<Checkout />} />
+        </Routes>
+      </Router>
+    </BookingProvider>
   )
 }
 

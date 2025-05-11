@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBooking } from '../context/BookingContext';
 
 export const useBookingForm = (tourInfo) => {
   const navigate = useNavigate();
@@ -52,17 +53,25 @@ export const useBookingForm = (tourInfo) => {
     }
   };
 
+  // Obtener la función saveBookingData del contexto
+  const { saveBookingData } = useBooking();
+
   const handleCheckout = (total, taxes) => {
-    const bookingData = {
-      date: selected,
-      schedule: selectedSchedule,
-      adults,
-      children,
-      total,
-      taxes
+    // Crear un objeto con los datos de la reserva
+    const bookingInfo = {
+      formattedDate: selected ? selected.toLocaleDateString() : "No disponible",
+      scheduleTime: selectedSchedule ? selectedSchedule.time : "No disponible",
+      adults: String(adults),
+      children: String(children),
+      total: String(total.toFixed(2)),
+      taxes: String(taxes.toFixed(2))
     };
     
-    sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+    // Guardar datos en el contexto
+    saveBookingData(bookingInfo);
+    console.log('Datos guardados en contexto:', bookingInfo);
+    
+    // Navegar a la página de checkout
     navigate('/checkout');
   };
 
