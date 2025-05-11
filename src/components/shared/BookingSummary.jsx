@@ -39,7 +39,11 @@ export function BookingSummary({
 
         <div className="flex flex-col gap-[20px]">
           <p className="text-[18px] font-regular text-adrians-brown">
-            <strong>Date:</strong> {selected?.toLocaleDateString()}
+            <strong>Date:</strong> {selected ? selected.toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric'
+            }) : ''}
           </p>
           <p className="text-[18px] font-regular text-adrians-brown">
             <strong>Schedule:</strong> {selectedSchedule?.time}
@@ -47,9 +51,11 @@ export function BookingSummary({
           <p className="text-[18px] font-regular text-adrians-brown">
             <strong>Adults:</strong> {adults} x ${tourInfo.adult_price}
           </p>
-          <p className="text-[18px] font-regular text-adrians-brown">
-            <strong>Children:</strong> {children} x ${tourInfo.child_price}
-          </p>
+          {children > 0 && (
+            <p className="text-[18px] font-regular text-adrians-brown">
+              <strong>Children:</strong> {children} x ${tourInfo.child_price}
+            </p>
+          )}
         </div>
 
         <span className="w-full h-[2px] bg-adrians-red block rounded-full"></span>

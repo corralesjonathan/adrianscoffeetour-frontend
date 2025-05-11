@@ -65,8 +65,12 @@ export const useBookingForm = (tourInfo) => {
   const handleCheckout = (total, taxes, dateToIdMap = {}) => {
     // Crear un objeto con los datos de la reserva
     const bookingInfo = {
-      formattedDate: selected ? selected.toLocaleDateString() : "No disponible",
-      scheduleTime: selectedSchedule ? selectedSchedule.time : "No disponible",
+      formattedDate: selected ? selected.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      }) : "Not available",
+      scheduleTime: selectedSchedule ? selectedSchedule.time : "Not available",
       adults: String(adults),
       children: String(children),
       adultPrice: String(tourInfo?.adult_price || 0),
