@@ -5,11 +5,34 @@ import { useBooking } from "../context/BookingContext";
 import { countryCodes, defaultCountryCode } from "../data/countryCodes.js";
 import { countries, defaultCountry } from "../data/countries.js";
 import { getStatesByCountry, getGenericState } from "../data/states.js";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import paypalConfig from "../config/paypalConfig.js";
 
 export function Checkout() {
   const navigate = useNavigate();
   // Obtener los datos directamente del contexto
   const { bookingData } = useBooking();
+  
+  // Configuración de PayPal
+  const [paypalError, setPaypalError] = useState(null);
+  const [orderProcessing, setOrderProcessing] = useState(false);
+  const [orderCompleted, setOrderCompleted] = useState(false);
+  
+  // Estados para los datos del formulario para enviar a PayPal
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  
+  // Opciones iniciales de PayPal
+  const initialOptions = {
+    "client-id": paypalConfig[paypalConfig.environment].clientId,
+    currency: "USD",
+    intent: "capture"
+  };
   
   // Estados para el selector de código de país (teléfono)
   const [selectedCountryCode, setSelectedCountryCode] = useState(defaultCountryCode);
@@ -121,6 +144,8 @@ export function Checkout() {
                     type="text" 
                     id="firstName"
                     className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                   />
                 </div>
                 
@@ -130,6 +155,8 @@ export function Checkout() {
                     type="text" 
                     id="lastName"
                     className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                   />
                 </div>
               </div>
@@ -140,6 +167,8 @@ export function Checkout() {
                   type="email" 
                   id="email"
                   className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               
@@ -216,6 +245,8 @@ export function Checkout() {
                     id="phone"
                     className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
                     placeholder="123456789"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                   />
                 </div>
               </div>
@@ -297,6 +328,8 @@ export function Checkout() {
                     type="text" 
                     id="city"
                     className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                   />
                 </div>
                 
@@ -380,6 +413,8 @@ export function Checkout() {
                     type="text" 
                     id="zipCode"
                     className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
                   />
                 </div>
               </div>
@@ -390,6 +425,8 @@ export function Checkout() {
                   type="text" 
                   id="address"
                   className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
             </div>
@@ -434,6 +471,130 @@ export function Checkout() {
                 <p className="text-xl font-semibold text-adrians-red">
                   <span className="font-bold">Total:</span> ${bookingData.total || "0.00"}
                 </p>
+              </div>
+              
+              {/* Sección de PayPal (justo debajo de los detalles de reserva) */}
+              <div className="mt-6 border-t border-adrians-red/20 pt-4">
+                <h3 className="text-lg font-semibold text-adrians-red mb-4">Payment Method</h3>
+                
+                {orderCompleted ? (
+                  <div className="p-4 bg-green-50 rounded-[15px] text-green-700">
+                    <p className="font-medium">Payment Completed!</p>
+                    <p className="text-sm">Thank you for your booking. You will receive a confirmation email shortly.</p>
+                  </div>
+                ) : (
+                  <>
+                    {paypalError && (
+                      <div className="p-4 mb-4 bg-red-50 rounded-[15px] text-red-700">
+                        <p className="font-medium">Payment Error</p>
+                        <p className="text-sm">{paypalError}</p>
+                      </div>
+                    )}
+                    
+                    <PayPalScriptProvider options={initialOptions}>
+                      {orderProcessing && (
+                        <div className="flex justify-center items-center py-6">
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-adrians-red"></div>
+                          <span className="ml-2 text-adrians-red">Processing payment...</span>
+                        </div>
+                      )}
+                      <div className={orderProcessing ? "opacity-50 pointer-events-none" : ""}>
+                        <PayPalButtons
+                          style={{
+                            color: "gold",
+                            shape: "rect",
+                            label: "paypal",
+                            layout: "vertical",
+                            tagline: false,
+                            height: 55,
+                            fundingicons: true
+                          }}
+                          createOrder={(data, actions) => {
+                            return actions.order.create({
+                              purchase_units: [
+                                {
+                                  description: "Adrian's Coffee Tour Booking",
+                                  amount: {
+                                    value: bookingData.total || "0.00",
+                                    currency_code: "USD",
+                                    breakdown: {
+                                      item_total: {
+                                        currency_code: "USD",
+                                        value: (parseFloat(bookingData.total) - parseFloat(bookingData.taxes || "0")).toFixed(2)
+                                      },
+                                      tax_total: {
+                                        currency_code: "USD",
+                                        value: bookingData.taxes || "0.00"
+                                      }
+                                    }
+                                  },
+                                  items: [
+                                    {
+                                      name: "Coffee Tour",
+                                      description: `${bookingData.adults || "0"} adults${parseInt(bookingData.children) > 0 ? `, ${bookingData.children} children` : ""} (${bookingData.formattedDate || "N/A"}, ${bookingData.scheduleTime || "N/A"})`,
+                                      unit_amount: {
+                                        currency_code: "USD",
+                                        value: bookingData.adultPrice || "0.00"
+                                      },
+                                      quantity: bookingData.adults || "0",
+                                      category: "DIGITAL_GOODS"
+                                    },
+                                    ...(parseInt(bookingData.children) > 0 ? [{
+                                      name: "Coffee Tour - Child",
+                                      unit_amount: {
+                                        currency_code: "USD",
+                                        value: bookingData.childPrice || "0.00"
+                                      },
+                                      quantity: bookingData.children || "0",
+                                      category: "DIGITAL_GOODS"
+                                    }] : [])
+                                  ],
+                                  shipping: {
+                                    name: {
+                                      full_name: `${firstName} ${lastName}`.trim() || "Customer"
+                                    },
+                                    address: {
+                                      address_line_1: address || "",
+                                      admin_area_2: city || "",
+                                      admin_area_1: selectedState || "",
+                                      postal_code: zipCode || "",
+                                      country_code: selectedCountry || "US"
+                                    },
+                                    email_address: email || ""
+                                  }
+                                }
+                              ],
+                              application_context: {
+                                shipping_preference: "SET_PROVIDED_ADDRESS",
+                                user_action: "PAY_NOW"
+                              }
+                            });
+                          }}
+                          onApprove={(data, actions) => {
+                            setOrderProcessing(true);
+                            return actions.order.capture().then((details) => {
+                              setOrderProcessing(false);
+                              setOrderCompleted(true);
+                              // Aquí puede enviar los datos a su servidor para procesar la reserva
+                              console.log("Payment completed:", details);
+                              // También puede redirigir a una página de confirmación
+                              // navigate('/confirmation', { state: { orderDetails: details, bookingData } });
+                            });
+                          }}
+                          onError={(err) => {
+                            setOrderProcessing(false);
+                            setPaypalError("There was an error processing your payment. Please try again.");
+                            console.error("PayPal Error:", err);
+                          }}
+                          onCancel={() => {
+                            setOrderProcessing(false);
+                            console.log("Payment cancelled");
+                          }}
+                        />
+                      </div>
+                    </PayPalScriptProvider>
+                  </>
+                )}
               </div>
             </div>
           </div>
