@@ -439,43 +439,48 @@ export function Checkout() {
             data-aos-delay="200"
             data-aos-once="true"
           >
-            <h2 className="text-xl font-semibold text-adrians-red mb-6">Booking Details</h2>
-            
-            <div className="bg-adrians-red/5 rounded-[15px] p-6">
-              <div className="space-y-4">
-                <div>
-                  <p className="text-adrians-brown mb-2">
-                    <span className="font-medium">Date:</span> {bookingData.formattedDate || "Not available"}
-                  </p>
-                  <p className="text-adrians-brown mb-2">
-                    <span className="font-medium">Schedule:</span> {bookingData.scheduleTime || "Not specified"}
-                  </p>
+            <div>
+              <h2 className="text-xl font-semibold text-adrians-red mb-6">Booking Details</h2>
+              
+              <div className="bg-adrians-red/5 rounded-[15px] p-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-adrians-brown mb-2">
+                      <span className="font-medium">Date:</span> {bookingData.formattedDate || "Not available"}
+                    </p>
+                    <p className="text-adrians-brown mb-2">
+                      <span className="font-medium">Schedule:</span> {bookingData.scheduleTime || "Not specified"}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-adrians-brown mb-2">
+                      <span className="font-medium">Adults:</span> {bookingData.adults || "0"}x${bookingData.adultPrice || "0"}
+                    </p>
+                    {parseInt(bookingData.children) > 0 && (
+                      <p className="text-adrians-brown mb-2">
+                        <span className="font-medium">Children:</span> {bookingData.children}x${bookingData.childPrice || "0"}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 
-                <div>
-                  <p className="text-adrians-brown mb-2">
-                    <span className="font-medium">Adults:</span> {bookingData.adults || "0"}x${bookingData.adultPrice || "0"}
+                <div className="border-t border-adrians-red/20 mt-4 pt-4">
+                  <p className="text-adrians-brown mb-1">
+                    <span className="font-medium">Taxes:</span> ${bookingData.taxes || "0.00"}
                   </p>
-                  {parseInt(bookingData.children) > 0 && (
-                    <p className="text-adrians-brown mb-2">
-                      <span className="font-medium">Children:</span> {bookingData.children}x${bookingData.childPrice || "0"}
-                    </p>
-                  )}
+                  <p className="text-xl font-semibold text-adrians-red">
+                    <span className="font-bold">Total:</span> ${bookingData.total || "0.00"}
+                  </p>
                 </div>
               </div>
-              
-              <div className="border-t border-adrians-red/20 mt-4 pt-4">
-                <p className="text-adrians-brown mb-1">
-                  <span className="font-medium">Taxes:</span> ${bookingData.taxes || "0.00"}
-                </p>
-                <p className="text-xl font-semibold text-adrians-red">
-                  <span className="font-bold">Total:</span> ${bookingData.total || "0.00"}
-                </p>
-              </div>
-              
+            </div>
+
+            <div>
               {/* Sección de PayPal (justo debajo de los detalles de reserva) */}
-              <div className="mt-6 border-t border-adrians-red/20 pt-4">
+              <div className="mt-6 pt-4">
                 <h3 className="text-lg font-semibold text-adrians-red mb-4">Payment Method</h3>
+                
                 
                 {orderCompleted ? (
                   <div className="p-4 bg-green-50 rounded-[15px] text-green-700">
@@ -583,7 +588,7 @@ export function Checkout() {
                           }}
                           onError={(err) => {
                             setOrderProcessing(false);
-                            setPaypalError("There was an error processing your payment. Please try again.");
+                            setPaypalError("First complete the billing information.");
                             console.error("PayPal Error:", err);
                           }}
                           onCancel={() => {
@@ -595,12 +600,16 @@ export function Checkout() {
                     </PayPalScriptProvider>
                   </>
                 )}
+
+
               </div>
+
             </div>
+
           </div>
         </div>
         
-        {/* Footer minimal */}
+        {/* Footer */}
         <div 
           className="
             flex w-full items-cesnter justify-start  gap-4 text-sm text-adrians-brown/70 mt-[20px]
