@@ -7,6 +7,7 @@ import { countries, defaultCountry } from "../data/countries.js";
 import { getStatesByCountry, getGenericState } from "../data/states.js";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import paypalConfig from "../config/paypalConfig.js";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Checkout() {
   const navigate = useNavigate();
@@ -17,6 +18,11 @@ export function Checkout() {
   const [paypalError, setPaypalError] = useState(null);
   const [orderProcessing, setOrderProcessing] = useState(false);
   const [orderCompleted, setOrderCompleted] = useState(false);
+  
+  // Estado para validar el formulario y controlar la visibilidad de la sección de pago
+  const [formIsValid, setFormIsValid] = useState(false);
+  const [showPaymentSection, setShowPaymentSection] = useState(false);
+  const [formError, setFormError] = useState("");
   
   // Estados para los datos del formulario para enviar a PayPal
   const [firstName, setFirstName] = useState("");
@@ -100,6 +106,49 @@ export function Checkout() {
       window.onbeforeunload = null;
     };
   }, [bookingData, navigate]);
+  
+  // Función para verificar si el formulario está completo
+  const validateForm = () => {
+    // Validar que todos los campos obligatorios estén completos
+    const isFormComplete = 
+      firstName.trim() !== '' &&
+      lastName.trim() !== '' &&
+      email.trim() !== '' &&
+      phone.trim() !== '' &&
+      address.trim() !== '' &&
+      city.trim() !== '' &&
+      zipCode.trim() !== '' &&
+      selectedCountry !== '' &&
+      selectedState !== '';
+    
+    setFormIsValid(isFormComplete);
+    return isFormComplete;
+  };
+  
+  // Función para manejar el envío del formulario
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validar el formulario
+    const isValid = validateForm();
+    
+    if (isValid) {
+      // Si el formulario es válido, mostrar la sección de pago
+      setShowPaymentSection(true);
+      setFormError("");
+      // Scrollear hacia abajo para que se vea la sección de pago
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 100);
+    } else {
+      // Si no es válido, mostrar mensaje de error
+      setShowPaymentSection(false);
+      setFormError("Please complete all the billing information fields");
+    }
+  };
 
   // Si no hay datos, mostrar una pantalla de carga
   if (!bookingData) {
@@ -136,7 +185,14 @@ export function Checkout() {
           >
             <h2 className="text-xl font-semibold text-adrians-red mb-6">Billing Information</h2>
             
-            <div className="space-y-4">
+            {formError && (
+              <div className="p-4 mb-4 bg-red-50 rounded-[15px] text-red-700">
+                <p className="font-medium">Error</p>
+                <p className="text-sm">{formError}</p>
+              </div>
+            )}
+            
+            <form onSubmit={handleFormSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-adrians-brown mb-1">First Name</label>
@@ -429,7 +485,25 @@ export function Checkout() {
                   onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
-            </div>
+              
+              <div className="mt-6">
+                <button 
+                  type="submit"
+                  className="group cursor-pointer shadow-adrians-btn-shadow hover:shadow-adrians-btn-shadow-hover hover:scale-105 transition-all duration-300 ease-in-out w-full py-3 px-6 bg-adrians-red text-white rounded-full hover:bg-adrians-red/90 transition-all duration-300 font-medium flex items-center justify-center"
+                >
+                  Continue to Payment
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-5 w-5 ml-2 group-hover:translate-x-[5px] transition-all duration-300 ease-in-out" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </button>
+              </div>
+            </form>
           </div>
           
           {/* Columna derecha - Booking Details */}
@@ -476,13 +550,24 @@ export function Checkout() {
               </div>
             </div>
 
-            <div>
-              {/* Sección de PayPal (justo debajo de los detalles de reserva) */}
-              <div className="mt-6 pt-4">
-                <h3 className="text-lg font-semibold text-adrians-red mb-4">Payment Method</h3>
-                
-                
-                {orderCompleted ? (
+            {/* Sección de pago (condicionalmente renderizada) */}
+            <AnimatePresence>
+              {showPaymentSection && (
+                <motion.div 
+                  className="mt-6 pt-4 border-t border-gray-200"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ 
+                    duration: 0.5,
+                    type: "spring", 
+                    stiffness: 100, 
+                    damping: 15
+                  }}
+                >
+                  <h3 className="text-lg font-semibold text-adrians-red mb-4">Payment Method</h3>
+                  
+                  {orderCompleted ? (
                   <div className="p-4 bg-green-50 rounded-[15px] text-green-700">
                     <p className="font-medium">Payment Completed!</p>
                     <p className="text-sm">Thank you for your booking. You will receive a confirmation email shortly.</p>
@@ -504,6 +589,7 @@ export function Checkout() {
                         </div>
                       )}
                       <div className={orderProcessing ? "opacity-50 pointer-events-none" : ""}>
+                        {formIsValid ? (
                         <PayPalButtons
                           style={{
                             color: "gold",
@@ -515,6 +601,12 @@ export function Checkout() {
                             fundingicons: true
                           }}
                           createOrder={(data, actions) => {
+                            // Validar nuevamente antes de crear la orden
+                            if (!formIsValid) {
+                              setPaypalError("First complete the billing information.");
+                              return Promise.reject(new Error("Incomplete billing information"));
+                            }
+                            
                             return actions.order.create({
                               purchase_units: [
                                 {
@@ -596,16 +688,14 @@ export function Checkout() {
                             console.log("Payment cancelled");
                           }}
                         />
+                        ) : null}
                       </div>
                     </PayPalScriptProvider>
                   </>
                 )}
-
-
-              </div>
-
-            </div>
-
+              </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
         
