@@ -2,12 +2,17 @@ import { Navbar } from "../components/shared/Navbar.jsx";
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useBooking } from "../context/BookingContext";
-import { countryCodes, defaultCountryCode } from "../data/countryCodes.js";
-import { countries, defaultCountry } from "../data/countries.js";
-import { getStatesByCountry, getGenericState } from "../data/states.js";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import paypalConfig from "../config/paypalConfig.js";
 import { motion, AnimatePresence } from "framer-motion";
+import { 
+  getAllCountries,
+  getAllCountryCodes,
+  getStatesByCountry, 
+  getGenericState,
+  defaultCountry,
+  defaultCountryCode
+} from "../services/countryService.js";
 
 export function Checkout() {
   const navigate = useNavigate();
@@ -44,13 +49,13 @@ export function Checkout() {
   const [selectedCountryCode, setSelectedCountryCode] = useState(defaultCountryCode);
   const [isCountryCodeOpen, setIsCountryCodeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredCountries, setFilteredCountries] = useState(countryCodes);
+  const [filteredCountries, setFilteredCountries] = useState([]);
   
   // Estados para el selector de país (ISO Alpha-2)
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
   const [countrySearchQuery, setCountrySearchQuery] = useState("");
-  const [filteredCountriesList, setFilteredCountriesList] = useState(countries);
+  const [filteredCountriesList, setFilteredCountriesList] = useState([]);
   
   // Estados para el selector de estado/provincia
   const [selectedState, setSelectedState] = useState("");
@@ -58,6 +63,15 @@ export function Checkout() {
   const [stateSearchQuery, setStateSearchQuery] = useState("");
   const [availableStates, setAvailableStates] = useState([]);
   const [filteredStates, setFilteredStates] = useState([]);
+
+  // Efecto para cargar datos iniciales
+  useEffect(() => {
+    // Inicializar los selectores con sus valores por defecto
+    const allCountryCodes = getAllCountryCodes();
+    const allCountries = getAllCountries();
+    setFilteredCountries(allCountryCodes);
+    setFilteredCountriesList(allCountries);
+  }, []);
 
   // Efecto para cargar estados/provincias cuando cambia el país seleccionado
   useEffect(() => {
@@ -88,6 +102,16 @@ export function Checkout() {
       setFilteredStates(availableStates);
     }
   }, [stateSearchQuery, availableStates]);
+
+  // Efecto para filtrar países cuando se busca
+  useEffect(() => {
+    const allCountries = getAllCountries();
+    const filtered = allCountries.filter(country =>
+      country.name.toLowerCase().includes(countrySearchQuery.toLowerCase()) ||
+      country.code.toLowerCase().includes(countrySearchQuery.toLowerCase())
+    );
+    setFilteredCountriesList(filtered);
+  }, [countrySearchQuery]);
 
   useEffect(() => {
     document.title = "Checkout - Adrian's Coffee Tour";
@@ -238,7 +262,7 @@ export function Checkout() {
                       className="flex items-center justify-between p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300 cursor-pointer"
                     >
                       <span className="whitespace-nowrap overflow-hidden text-ellipsis">
-                        {selectedCountryCode}
+                        {selectedCountryCode.code}
                       </span>
                       <svg 
                         className={`w-4 h-4 ml-2 text-adrians-red transition-transform duration-200 ${isCountryCodeOpen ? "rotate-180" : ""}`} 
@@ -262,7 +286,8 @@ export function Checkout() {
                             onChange={(e) => {
                               const query = e.target.value.toLowerCase();
                               setSearchQuery(query);
-                              const filtered = countryCodes.filter(country => 
+                              const allCountryCodes = getAllCountryCodes();
+                              const filtered = allCountryCodes.filter(country => 
                                 country.country.toLowerCase().includes(query) || 
                                 country.code.toLowerCase().includes(query)
                               );
@@ -271,14 +296,19 @@ export function Checkout() {
                             value={searchQuery}
                           />
                         </div>
-                        {(searchQuery ? filteredCountries : countryCodes).map((country, index) => (
+                        {(searchQuery ? filteredCountries : getAllCountryCodes()).map((country, index) => (
                           <div
                             key={`${country.code}-${index}`}
                             onClick={() => {
-                              setSelectedCountryCode(country.code);
+                              setSelectedCountryCode(country);
                               setIsCountryCodeOpen(false);
                               setSearchQuery(""); // Limpiar la búsqueda al seleccionar
-                              setFilteredCountries(countryCodes);
+                              setFilteredCountries(getAllCountryCodes());
+                              
+                              // Actualizar automáticamente el país seleccionado
+                              if (country.flag) {
+                                setSelectedCountry(country.flag.toUpperCase());
+                              }
                             }}
                             className="flex items-center p-2 cursor-pointer hover:bg-adrians-red/5 transition-all duration-200"
                           >
@@ -315,7 +345,7 @@ export function Checkout() {
                     className="flex items-center justify-between p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300 cursor-pointer"
                   >
                     <span className="whitespace-nowrap overflow-hidden text-ellipsis">
-                      {selectedCountry && countries.find(c => c.code === selectedCountry)?.name || defaultCountry}
+                      {selectedCountry && getAllCountries().find(c => c.code === selectedCountry)?.name || defaultCountry}
                     </span>
                     <svg 
                       className={`w-4 h-4 ml-2 text-adrians-red transition-transform duration-200 ${isCountryDropdownOpen ? "rotate-180" : ""}`} 
@@ -337,7 +367,8 @@ export function Checkout() {
                           onClick={(e) => e.stopPropagation()}
                           onChange={(e) => {
                             setCountrySearchQuery(e.target.value.toLowerCase());
-                            const filtered = countries.filter(country => 
+                            const allCountries = getAllCountries();
+                            const filtered = allCountries.filter(country => 
                               country.name.toLowerCase().includes(e.target.value.toLowerCase()) || 
                               country.code.toLowerCase().includes(e.target.value.toLowerCase())
                             );
@@ -353,7 +384,7 @@ export function Checkout() {
                             setSelectedCountry(country.code);
                             setIsCountryDropdownOpen(false);
                             setCountrySearchQuery("");
-                            setFilteredCountriesList(countries);
+                            setFilteredCountriesList(getAllCountries());
                           }}
                           className="p-3 cursor-pointer hover:bg-adrians-red/5 transition-all duration-200"
                         >
