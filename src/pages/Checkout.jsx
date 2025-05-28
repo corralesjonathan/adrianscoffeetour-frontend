@@ -25,7 +25,7 @@ export function Checkout() {
   const [orderCompleted, setOrderCompleted] = useState(false);
   
   // Estado para el temporizador de 10 minutos (600 segundos)
-  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutos en segundos
+  const [timeRemaining, setTimeRemaining] = useState(900); // 15 minutos en segundos
   const timerRef = useRef(null);
   
   // Estado para validar el formulario y controlar la visibilidad de la sección de pago
@@ -227,19 +227,19 @@ export function Checkout() {
         <h1 className="text-3xl font-bold text-adrians-red text-center">Checkout</h1>
         
         {/* Temporizador */}
-        <div className="w-full bg-gray-100 p-4 rounded-lg shadow-sm">
+        <div className="w-full p-4 flex flex-col items-center justify-center gap-[20px]">
           <div className="flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-adrians-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-adrians-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-lg font-medium">
-              Tiempo restante para completar la reserva: {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+              Time Remaining  : {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
             </p>
           </div>
-          <div className="w-full bg-gray-300 h-2 mt-2 rounded-full overflow-hidden">
+          <div className="w-[80%] bg-gray-200 h-[5px] rounded-full overflow-hidden">
             <div 
               className="bg-adrians-red h-full transition-all duration-1000 ease-linear" 
-              style={{ width: `${(timeRemaining / 600) * 100}%` }}
+              style={{ width: `${(timeRemaining / 900) * 100}%` }}
             ></div>
           </div>
         </div>
