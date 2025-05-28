@@ -1,11 +1,11 @@
 /**
- * Servicio para proporcionar datos de países, estados y códigos telefónicos
- * Utiliza la biblioteca country-state-city para reemplazar los archivos estáticos
+ * Country service for providing country, state and phone code data
+ * Uses country-state-city library instead of static files
  */
 
-import { Country, State, City } from 'country-state-city';
+import { Country, State } from 'country-state-city';
 
-// Obtenemos todos los países con su información completa
+// Get all countries with complete info
 const getAllCountries = () => {
   return Country.getAllCountries().map(country => ({
     name: country.name,
@@ -15,7 +15,7 @@ const getAllCountries = () => {
   }));
 };
 
-// Obtener todos los códigos telefónicos con formato para selector
+// Get all phone codes formatted for selector
 const getAllCountryCodes = () => {
   return Country.getAllCountries().map(country => ({
     code: `+${country.phonecode}`,
@@ -24,7 +24,7 @@ const getAllCountryCodes = () => {
   })).sort((a, b) => a.country.localeCompare(b.country));
 };
 
-// Obtener estados/provincias por código de país
+// Get states/provinces by country code
 const getStatesByCountry = (countryCode) => {
   const states = State.getStatesOfCountry(countryCode);
   
@@ -38,7 +38,7 @@ const getStatesByCountry = (countryCode) => {
   }));
 };
 
-// Para países sin estados/provincias definidos
+// For countries without defined states/provinces
 const getGenericState = (countryCode) => {
   return {
     name: "Not Applicable",
@@ -46,36 +46,38 @@ const getGenericState = (countryCode) => {
   };
 };
 
-// Obtener URL de la bandera utilizando el código ISO
+// Get flag URL using ISO code
 const getFlagUrl = (isoCode) => {
   return `https://flagcdn.com/32x24/${isoCode.toLowerCase()}.png`;
 };
 
-// Valores por defecto
+// Default values
 const defaultCountry = "US";
 const defaultCountryCode = { code: "+1", country: "United States", flag: "us" };
 
-// Obtener país por código
+// Get country by code
 const getCountryByCode = (code) => {
   const country = Country.getCountryByCode(code);
-  return country ? {
+  if (!country) return null;
+  
+  return {
     name: country.name,
-    code: country.isoCode
-  } : null;
+    code: country.isoCode,
+    phoneCode: country.phonecode
+  };
 };
 
-// Obtener país por nombre
+// Get country by name
 const getCountryByName = (name) => {
-  const countries = getAllCountries();
-  return countries.find(country => 
-    country.name.toLowerCase() === name.toLowerCase()
-  );
+  const allCountries = Country.getAllCountries();
+  const country = allCountries.find(c => c.name.toLowerCase() === name.toLowerCase());
+  return country ? getCountryByCode(country.isoCode) : null;
 };
 
-// Obtener código telefónico por código de país
+// Get phone code by country code
 const getPhoneCodeByCountry = (countryCode) => {
   const country = Country.getCountryByCode(countryCode);
-  return country ? `+${country.phonecode}` : "";
+  return country ? `+${country.phonecode}` : '';
 };
 
 export {
@@ -84,9 +86,9 @@ export {
   getStatesByCountry,
   getGenericState,
   getFlagUrl,
-  defaultCountry,
-  defaultCountryCode,
   getCountryByCode,
   getCountryByName,
-  getPhoneCodeByCountry
+  getPhoneCodeByCountry,
+  defaultCountry,
+  defaultCountryCode
 };

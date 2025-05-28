@@ -5,6 +5,7 @@ import { useBooking } from "../context/BookingContext";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import paypalConfig from "../config/paypalConfig.js";
 import { motion, AnimatePresence } from "framer-motion";
+import { SuccessModal } from "../components/SuccessModal";
 import { 
   getAllCountries,
   getAllCountryCodes,
@@ -15,14 +16,16 @@ import {
 } from "../services/countryService.js";
 
 export function Checkout() {
+  // Referencia para el contenedor principal
+  const mainContainerRef = useRef(null);
   const navigate = useNavigate();
   // Obtener los datos directamente del contexto
   const { bookingData } = useBooking();
   
   // Configuración de PayPal
   const [paypalError, setPaypalError] = useState(null);
-  const [orderProcessing, setOrderProcessing] = useState(false);
   const [orderCompleted, setOrderCompleted] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(5); // 5 segundos para redirección
   
   // Estado para el temporizador de 10 minutos (600 segundos)
   const [timeRemaining, setTimeRemaining] = useState(900); // 15 minutos en segundos
@@ -120,30 +123,34 @@ export function Checkout() {
   useEffect(() => {
     document.title = "Checkout - Adrian's Coffee Tour";
     
-    // If there is no data in the context, redirect to home
+    // If no data in context, redirect to home
     if (!bookingData) {
       console.error("No booking data found in context");
       navigate('/');
+      return;
     }
     
-    // Prevent accidental page reload or navigation
-    window.onbeforeunload = () => "Are you sure you want to leave? Your booking information may be lost.";
+    // Add a simple warning when user tries to leave the page
+    window.onbeforeunload = () => "Are you sure you want to leave? Your booking information will be lost.";
     
-    // Clean up the event before unmounting
+    // Cleanup function
     return () => {
+      // Remove warning when component unmounts
       window.onbeforeunload = null;
     };
   }, [bookingData, navigate]);
   
-  // Efecto para gestionar el temporizador de 10 minutos
+  // Timer effect to manage the 15-minute countdown
   useEffect(() => {
-    // Iniciar el temporizador solo si no está completada la orden
+    // Start timer only if the order is not completed
     if (!orderCompleted) {
       timerRef.current = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
-            // Cuando el tiempo llega a cero, limpiar el intervalo y redirigir al inicio
+            // When time reaches zero, clear the interval
             clearInterval(timerRef.current);
+            
+            // Redirect to home when timer expires
             navigate('/');
             return 0;
           }
@@ -151,8 +158,8 @@ export function Checkout() {
         });
       }, 1000);
     }
-    
-    // Limpiar el temporizador cuando el componente se desmonta o la orden se completa
+
+    // Clear interval when component unmounts
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -218,6 +225,11 @@ export function Checkout() {
   return (
     <>
       <Navbar />
+      
+      {/* Modal de confirmación - Componente separado */}
+      {orderCompleted && (
+        <SuccessModal countdown={redirectCountdown} />
+      )}
       
       <div className="
         flex flex-col justify-center items-center gap-[40px] 
@@ -645,12 +657,7 @@ export function Checkout() {
                 >
                   <h3 className="text-lg font-semibold text-adrians-red mb-4">Payment Method</h3>
                   
-                  {orderCompleted ? (
-                  <div className="p-4 bg-green-50 rounded-[15px] text-green-700">
-                    <p className="font-medium">Payment Completed!</p>
-                    <p className="text-sm">Thank you for your booking. You will receive a confirmation email shortly.</p>
-                  </div>
-                ) : (
+                  {!orderCompleted && (
                   <>
                     {paypalError && (
                       <div className="p-4 mb-4 bg-red-50 rounded-[15px] text-red-700">
@@ -660,13 +667,8 @@ export function Checkout() {
                     )}
                     
                     <PayPalScriptProvider options={initialOptions}>
-                      {orderProcessing && (
-                        <div className="flex justify-center items-center py-6">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-adrians-red"></div>
-                          <span className="ml-2 text-adrians-red">Processing payment...</span>
-                        </div>
-                      )}
-                      <div className={orderProcessing ? "opacity-50 pointer-events-none" : ""}>
+
+                      <div>
                         {formIsValid ? (
                         <PayPalButtons
                           style={{
@@ -687,7 +689,6 @@ export function Checkout() {
                             
                             // Desaparecer el error si existía
                             setPaypalError(null);
-                            setOrderProcessing(true);
                             
                             // Detener el temporizador cuando se inicia el proceso de pago
                             if (timerRef.current) {
@@ -755,10 +756,8 @@ export function Checkout() {
                               });
                           }}
                           onApprove={(data, actions) => {
-                            setOrderProcessing(true);
                             return actions.order.capture().then(function(details) {
                               console.log("Payment completed", details);
-                              setOrderProcessing(false);
                               // Aquí se procesaría la lógica de guardar la reserva en la base de datos
                               
                               // Marcar la orden como completada y detener el temporizador
@@ -766,15 +765,28 @@ export function Checkout() {
                               if (timerRef.current) {
                                 clearInterval(timerRef.current);
                               }
+                              
+                              // Iniciar temporizador para redirección
+                              const redirectTimer = setInterval(() => {
+                                setRedirectCountdown(prev => {
+                                  if (prev <= 1) {
+                                    clearInterval(redirectTimer);
+                                    // Usar setTimeout para asegurar que el usuario vea el mensaje completo
+                                    setTimeout(() => {
+                                      navigate('/');
+                                    }, 500);
+                                    return 0;
+                                  }
+                                  return prev - 1;
+                                });
+                              }, 1000);
                             });
                           }}
                           onError={(err) => {
-                            setOrderProcessing(false);
                             setPaypalError("First complete the billing information.");
                             console.error("PayPal Error:", err);
                           }}
                           onCancel={() => {
-                            setOrderProcessing(false);
                             console.log("Payment cancelled");
                           }}
                         />
