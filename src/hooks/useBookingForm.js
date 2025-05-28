@@ -95,7 +95,62 @@ export const useBookingForm = (tourInfo) => {
    * @param {Object} dateToIdMap - Map of dates to available date IDs
    */
   const handleCheckout = (total, taxes, dateToIdMap = {}) => {
-    // Create booking info object
+    // Variable to store the correct ID
+    let availableDateId = null;
+    
+    // Expected format of dateToIdMap:
+    // dateToIdMap = {
+    //   "2025-05-28": {
+    //     "09:00 AM to 11:00 AM": 57,
+    //     "01:00 PM to 03:30 PM": 58
+    //   }
+    // }
+    
+    // Debug information for dateToIdMap
+    
+    if (selected && selectedSchedule) {
+      // Get date in ISO format
+      const dateIso = selected.toISOString().split('T')[0]; // format 2025-05-28
+      
+      // Get date in YYYY-MM-DD format used by the API
+      const month = (selected.getMonth() + 1).toString().padStart(2, '0');
+      const day = selected.getDate().toString().padStart(2, '0');
+      const year = selected.getFullYear();
+      const dateFormatted = `${year}-${month}-${day}`;
+      
+      // Get the selected schedule time
+      const scheduleTime = selectedSchedule.time;
+      
+      // Selected date and schedule information
+      
+      // Intentar obtener el ID directamente
+      if (dateToIdMap[dateFormatted] && 
+          typeof dateToIdMap[dateFormatted] === 'object' && 
+          dateToIdMap[dateFormatted][scheduleTime]) {
+        
+        // Extract the specific ID for this schedule
+        availableDateId = dateToIdMap[dateFormatted][scheduleTime];
+        // ID found for schedule
+      }
+      // If not found, try with the ISO date
+      else if (dateToIdMap[dateIso]) {
+        availableDateId = dateToIdMap[dateIso];
+        // ID found for ISO date
+      }
+    }
+    
+    // If still no ID, check if selectedDateId already exists
+    if (!availableDateId && selectedDateId) {
+      availableDateId = selectedDateId;
+      // Using previously selected ID
+    }
+    
+    // If still no ID, use default value or show error message
+    if (!availableDateId) {
+      // No availability ID found
+    }
+    
+    // Create object with booking information
     const bookingInfo = {
       formattedDate: selected ? selected.toLocaleDateString('en-US', {
         month: 'long',
@@ -109,29 +164,15 @@ export const useBookingForm = (tourInfo) => {
       childPrice: String(tourInfo?.child_price || 0),
       total: String(total.toFixed(2)),
       taxes: String(taxes.toFixed(2)),
-      selectedDateId: selectedDateId // Include the selected date ID
+      selectedDateId: availableDateId // Save ONLY the ID as a unique value (number)
     };
     
-    // Try to get ID based on date and schedule combination
-    if (selected && selectedSchedule && dateToIdMap) {
-      const isoDate = selected.toISOString().split("T")[0];
-      const scheduleId = selectedSchedule.id;
-      
-      // First try with combined key (date + schedule)
-      const combinedKey = `${isoDate}|${scheduleId}`;
-      
-      if (dateToIdMap[combinedKey]) {
-        // If we find an ID with the combined key, use it
-        bookingInfo.selectedDateId = dateToIdMap[combinedKey];
-      } else if (dateToIdMap[isoDate]) {
-        // Otherwise, try with just the date
-        bookingInfo.selectedDateId = dateToIdMap[isoDate];
-      }
-    }
+    // Log to verify the ID is correct
+    // Booking info metadata
     
     // Save data in context
     saveBookingData(bookingInfo);
-    console.log('Data saved in context with date ID:', bookingInfo);
+    // Data saved in context
     
     // Navigate to checkout page
     navigate('/checkout');

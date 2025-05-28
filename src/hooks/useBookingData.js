@@ -33,7 +33,7 @@ export const useBookingData = () => {
         setError(null);
       } catch (error) {
         setError(error.message || 'Error fetching booking data');
-        console.error("Error fetching data:", error);
+        // Error fetching booking data
       } finally {
         setLoading(false);
       }

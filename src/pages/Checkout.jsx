@@ -6,6 +6,8 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import paypalConfig from "../config/paypalConfig.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { SuccessModal } from "../components/SuccessModal";
+import { FeedbackModal } from "../components/FeedbackModal";
+import { checkAvailabilityStatus } from "../services/availabilityService.js";
 import { 
   getAllCountries,
   getAllCountryCodes,
@@ -16,16 +18,20 @@ import {
 } from "../services/countryService.js";
 
 export function Checkout() {
-  // Referencia para el contenedor principal
+  // Reference for the main container
   const mainContainerRef = useRef(null);
   const navigate = useNavigate();
-  // Obtener los datos directamente del contexto
+  // Get data directly from the context
   const { bookingData } = useBooking();
   
   // Configuración de PayPal
   const [paypalError, setPaypalError] = useState(null);
   const [orderCompleted, setOrderCompleted] = useState(false);
-  const [redirectCountdown, setRedirectCountdown] = useState(5); // 5 segundos para redirección
+  const [redirectCountdown, setRedirectCountdown] = useState(10); // 10 segundos para redirección
+  
+  // Estados para el modal de error de disponibilidad
+  const [showAvailabilityError, setShowAvailabilityError] = useState(false);
+  const [availabilityErrorMessage, setAvailabilityErrorMessage] = useState("");
   
   // Estado para el temporizador de 10 minutos (600 segundos)
   const [timeRemaining, setTimeRemaining] = useState(900); // 15 minutos en segundos
@@ -35,6 +41,10 @@ export function Checkout() {
   const [formIsValid, setFormIsValid] = useState(false);
   const [showPaymentSection, setShowPaymentSection] = useState(false);
   const [formError, setFormError] = useState("");
+  
+  // Estados para el proceso de verificación de disponibilidad
+  const [availabilityChecking, setAvailabilityChecking] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
   
   // Estados para los datos del formulario para enviar a PayPal
   const [firstName, setFirstName] = useState("");
@@ -97,7 +107,7 @@ export function Checkout() {
     }
   }, [selectedCountry]);
   
-  // Efecto para filtrar estados cuando se busca
+  // Effect to filter states when searching
   useEffect(() => {
     if (stateSearchQuery) {
       const filtered = availableStates.filter(state => 
@@ -110,7 +120,7 @@ export function Checkout() {
     }
   }, [stateSearchQuery, availableStates]);
 
-  // Efecto para filtrar países cuando se busca
+  // Effect to filter countries when searching
   useEffect(() => {
     const allCountries = getAllCountries();
     const filtered = allCountries.filter(country =>
@@ -125,7 +135,7 @@ export function Checkout() {
     
     // If no data in context, redirect to home
     if (!bookingData) {
-      console.error("No booking data found in context");
+      // No booking data found in context
       navigate('/');
       return;
     }
@@ -185,24 +195,116 @@ export function Checkout() {
     return isFormComplete;
   };
   
+  // Función para iniciar la redirección con cuenta regresiva
+  const startRedirectCountdown = () => {
+    // Iniciar temporizador para redirección
+    const redirectTimer = setInterval(() => {
+      setRedirectCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(redirectTimer);
+          // Usar setTimeout para asegurar que el usuario vea el mensaje completo
+          setTimeout(() => {
+            navigate('/');
+          }, 500);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+  
+  // Función para mostrar error de disponibilidad con modal
+  const showAvailabilityErrorModal = (message) => {
+    setAvailabilityErrorMessage(message);
+    setShowAvailabilityError(true);
+    setRedirectCountdown(10); // Reiniciar la cuenta regresiva
+    startRedirectCountdown();
+  };
+
+  // Función para verificar disponibilidad del horario seleccionado
+  const verifyAvailability = async () => {
+    if (!bookingData) {
+      setFormError("No booking data found");
+      return false;
+    }
+    
+    // Determinar el ID correcto a utilizar
+    let availabilityId = null;
+    
+    if (typeof bookingData.selectedDateId === 'object' && bookingData.selectedDateId !== null) {
+      // Si es un objeto, intentar obtener el ID basado en el horario seleccionado
+      if (bookingData.scheduleTime && bookingData.selectedDateId[bookingData.scheduleTime]) {
+        availabilityId = bookingData.selectedDateId[bookingData.scheduleTime];
+        // Using schedule time ID
+      } else {
+        // Si no podemos encontrar por horario, usar el primer ID disponible
+        const firstKey = Object.keys(bookingData.selectedDateId)[0];
+        if (firstKey) {
+          availabilityId = bookingData.selectedDateId[firstKey];
+          // Using first available ID
+        }
+      }
+    } else if (bookingData.selectedDateId) {
+      // Si ya es un valor simple (string o número), usarlo directamente
+      availabilityId = bookingData.selectedDateId;
+      // Using direct ID
+    }
+    
+    if (!availabilityId) {
+      setFormError("Missing availability ID");
+      return false;
+    }
+    
+    // Mostrar modal de carga y establecer estado de verificación
+    setAvailabilityChecking(true);
+    setShowLoadingModal(true);
+    
+    try {
+      // Verifying availability for ID
+      const result = await checkAvailabilityStatus(availabilityId);
+      
+      if (!result.isAvailable) {
+        // Mostrar modal de error en lugar de mensaje simple
+        showAvailabilityErrorModal(result.message);
+        setShowPaymentSection(false);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      // Error checking availability
+      setFormError("Failed to verify schedule availability. Please try again.");
+      return false;
+    } finally {
+      // Ocultar modal de carga y restablecer estado
+      setAvailabilityChecking(false);
+      setShowLoadingModal(false);
+    }
+  };
+
   // Función para manejar el envío del formulario
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     
     // Validar el formulario
     const isValid = validateForm();
     
     if (isValid) {
-      // Si el formulario es válido, mostrar la sección de pago
-      setShowPaymentSection(true);
-      setFormError("");
-      // Scrollear hacia abajo para que se vea la sección de pago
-      setTimeout(() => {
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth'
-        });
-      }, 100);
+      // Verificar disponibilidad antes de mostrar la sección de pago
+      const isAvailable = await verifyAvailability();
+      
+      if (isAvailable) {
+        // Si el formulario es válido y el horario está disponible, mostrar la sección de pago
+        setShowPaymentSection(true);
+        setFormError("");
+        // Scrollear hacia abajo para que se vea la sección de pago
+        setTimeout(() => {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+          });
+        }, 100);
+      }
     } else {
       // Si no es válido, mostrar mensaje de error
       setShowPaymentSection(false);
@@ -226,9 +328,29 @@ export function Checkout() {
     <>
       <Navbar />
       
-      {/* Modal de confirmación - Componente separado */}
+      {/* Modales de retroalimentación */}
       {orderCompleted && (
         <SuccessModal countdown={redirectCountdown} />
+      )}
+      
+      {/* Modal de error de disponibilidad */}
+      {showAvailabilityError && (
+        <FeedbackModal 
+          countdown={redirectCountdown} 
+          isSuccess={false}
+          title="Schedule Not Available"
+          message={availabilityErrorMessage || "This schedule is no longer available. Please select another schedule."}
+        />
+      )}
+      
+      {/* Modal de carga durante verificación de disponibilidad */}
+      {showLoadingModal && (
+        <FeedbackModal 
+          isLoading={true}
+          showCountdown={false}
+          title="Verifying Availability"
+          message="We are verifying the availability of your selected schedule. This will take only a few seconds..."
+        />
       )}
       
       <div className="
@@ -579,18 +701,28 @@ export function Checkout() {
               <div className="mt-6">
                 <button 
                   type="submit"
-                  className="group cursor-pointer shadow-adrians-btn-shadow hover:shadow-adrians-btn-shadow-hover hover:scale-105 transition-all duration-300 ease-in-out w-full py-3 px-6 bg-adrians-red text-white rounded-full hover:bg-adrians-red/90 transition-all duration-300 font-medium flex items-center justify-center"
+                  disabled={availabilityChecking}
+                  className={`group cursor-pointer shadow-adrians-btn-shadow hover:shadow-adrians-btn-shadow-hover hover:scale-105 transition-all duration-300 ease-in-out w-full py-3 px-6 bg-adrians-red text-white rounded-full hover:bg-adrians-red/90 transition-all duration-300 font-medium flex items-center justify-center ${availabilityChecking ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  Continue to Payment
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="h-5 w-5 ml-2 group-hover:translate-x-[5px] transition-all duration-300 ease-in-out" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
+                  {availabilityChecking ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
+                      Verifying Availability...
+                    </>
+                  ) : (
+                    <>
+                      Continue to Payment
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className="h-5 w-5 ml-2 group-hover:translate-x-[5px] transition-all duration-300 ease-in-out" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -669,33 +801,51 @@ export function Checkout() {
                     <PayPalScriptProvider options={initialOptions}>
 
                       <div>
+                        {/* Mostrar botones de PayPal solo si el formulario es válido */}
                         {formIsValid ? (
-                        <PayPalButtons
-                          style={{
-                            color: "gold",
-                            shape: "rect",
-                            label: "paypal",
-                            layout: "vertical",
-                            tagline: false,
-                            height: 55,
-                            fundingicons: true
-                          }}
-                          createOrder={(data, actions) => {
-                            // Validación básica antes de crear la orden
-                            if (!firstName || !lastName || !email) {
-                              setPaypalError("Please fill at least your name and email before proceeding with payment");
-                              return Promise.reject(new Error("Please fill required fields"));
-                            }
-                            
-                            // Desaparecer el error si existía
-                            setPaypalError(null);
-                            
-                            // Detener el temporizador cuando se inicia el proceso de pago
-                            if (timerRef.current) {
-                              clearInterval(timerRef.current);
-                            }
-                            
-                            return actions.order.create({
+                          <PayPalButtons
+                            style={{
+                              color: "gold",
+                              shape: "rect",
+                              label: "paypal",
+                              layout: "vertical",
+                              tagline: false,
+                              height: 55,
+                              fundingicons: true
+                            }}
+                            onClick={async (data, actions) => {
+                              // Verificación final antes de que el usuario haga clic en el botón de pago
+                              // User clicked payment button, verifying availability
+                              
+                              // La función verifyAvailability ya maneja la visualización del modal de carga
+                              try {
+                                const isAvailable = await verifyAvailability();
+                                if (!isAvailable) {
+                                  // La verificación ya muestra el modal y maneja el error
+                                  return actions.reject();
+                                }
+                                return actions.resolve();
+                              } catch (error) {
+                                // Error verifying availability
+                                return actions.reject();
+                              }
+                            }}
+                            createOrder={(data, actions) => {
+                              // Validación básica antes de crear la orden
+                              if (!firstName || !lastName || !email) {
+                                setPaypalError("Please fill at least your name and email before proceeding with payment");
+                                return Promise.reject(new Error("Please fill required fields"));
+                              }
+                              
+                              // Desaparecer el error si existía
+                              setPaypalError(null);
+                              
+                              // Detener el temporizador cuando se inicia el proceso de pago
+                              if (timerRef.current) {
+                                clearInterval(timerRef.current);
+                              }
+                              
+                              return actions.order.create({
                                 purchase_units: [
                                   {
                                     description: "Adrian's Coffee Tour Booking",
@@ -754,42 +904,30 @@ export function Checkout() {
                                   user_action: "PAY_NOW"
                                 }
                               });
-                          }}
-                          onApprove={(data, actions) => {
-                            return actions.order.capture().then(function(details) {
-                              console.log("Payment completed", details);
-                              // Aquí se procesaría la lógica de guardar la reserva en la base de datos
-                              
-                              // Marcar la orden como completada y detener el temporizador
-                              setOrderCompleted(true);
-                              if (timerRef.current) {
-                                clearInterval(timerRef.current);
-                              }
-                              
-                              // Iniciar temporizador para redirección
-                              const redirectTimer = setInterval(() => {
-                                setRedirectCountdown(prev => {
-                                  if (prev <= 1) {
-                                    clearInterval(redirectTimer);
-                                    // Usar setTimeout para asegurar que el usuario vea el mensaje completo
-                                    setTimeout(() => {
-                                      navigate('/');
-                                    }, 500);
-                                    return 0;
-                                  }
-                                  return prev - 1;
-                                });
-                              }, 1000);
-                            });
-                          }}
-                          onError={(err) => {
-                            setPaypalError("First complete the billing information.");
-                            console.error("PayPal Error:", err);
-                          }}
-                          onCancel={() => {
-                            console.log("Payment cancelled");
-                          }}
-                        />
+                            }}
+                            onApprove={(data, actions) => {
+                              return actions.order.capture().then(function(details) {
+                                // Payment completed
+                                // Aquí se procesaría la lógica de guardar la reserva en la base de datos
+                                
+                                // Marcar la orden como completada y detener el temporizador
+                                setOrderCompleted(true);
+                                if (timerRef.current) {
+                                  clearInterval(timerRef.current);
+                                }
+                                
+                                // Iniciar cuenta regresiva para redirección
+                                startRedirectCountdown();
+                              });
+                            }}
+                            onError={(err) => {
+                              setPaypalError("First complete the billing information.");
+                              // PayPal error
+                            }}
+                            onCancel={() => {
+                              // Payment cancelled
+                            }}
+                          />
                         ) : null}
                       </div>
                     </PayPalScriptProvider>

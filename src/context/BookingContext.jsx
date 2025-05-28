@@ -1,27 +1,41 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 
-// Crear el contexto
+// Create the context
 export const BookingContext = createContext();
 
-// Proveedor del contexto que contendrá el estado global
+// Context provider that will hold the global state
 export function BookingProvider({ children }) {
-  // Estado para almacenar los datos de la reserva
+  // State to store booking data
   const [bookingData, setBookingData] = useState(null);
 
-  // Función para guardar los datos de la reserva
+  // Load data from localStorage on initialization
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('bookingData');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setBookingData(parsedData);
+        // Data loaded from localStorage
+      }
+    } catch (error) {
+      // Error handling for localStorage loading
+    }
+  }, []);
+
+  // Function to save booking data
   const saveBookingData = (data) => {
-    console.log('Guardando datos en contexto:', data);
+    // Saving data to context
     setBookingData(data);
     
-    // También guardar en localStorage como respaldo
+    // Also save to localStorage as backup
     try {
       localStorage.setItem('bookingData', JSON.stringify(data));
     } catch (error) {
-      console.error('Error guardando en localStorage:', error);
+      // Error handling for localStorage saving
     }
   };
 
-  // Exponer los valores y funciones del contexto
+  // Expose context values and functions
   const value = {
     bookingData,
     saveBookingData,
@@ -34,11 +48,11 @@ export function BookingProvider({ children }) {
   );
 }
 
-// Hook personalizado para acceder al contexto
+// Custom hook to access the context
 export function useBooking() {
   const context = useContext(BookingContext);
   if (!context) {
-    throw new Error('useBooking debe usarse dentro de un BookingProvider');
+    throw new Error('useBooking must be used within a BookingProvider');
   }
   return context;
 }
