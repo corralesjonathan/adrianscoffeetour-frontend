@@ -1,5 +1,5 @@
 import { Navbar } from "../components/shared/Navbar.jsx";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useBooking } from "../context/BookingContext";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
@@ -23,6 +23,10 @@ export function Checkout() {
   const [paypalError, setPaypalError] = useState(null);
   const [orderProcessing, setOrderProcessing] = useState(false);
   const [orderCompleted, setOrderCompleted] = useState(false);
+  
+  // Estado para el temporizador de 10 minutos (600 segundos)
+  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutos en segundos
+  const timerRef = useRef(null);
   
   // Estado para validar el formulario y controlar la visibilidad de la sección de pago
   const [formIsValid, setFormIsValid] = useState(false);
@@ -131,6 +135,31 @@ export function Checkout() {
     };
   }, [bookingData, navigate]);
   
+  // Efecto para gestionar el temporizador de 10 minutos
+  useEffect(() => {
+    // Iniciar el temporizador solo si no está completada la orden
+    if (!orderCompleted) {
+      timerRef.current = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            // Cuando el tiempo llega a cero, limpiar el intervalo y redirigir al inicio
+            clearInterval(timerRef.current);
+            navigate('/');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    // Limpiar el temporizador cuando el componente se desmonta o la orden se completa
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [navigate, orderCompleted]);
+  
   // Función para verificar si el formulario está completo
   const validateForm = () => {
     // Validar que todos los campos obligatorios estén completos
@@ -196,6 +225,24 @@ export function Checkout() {
         max-xl:w-[90vw] max-lg:mt-[60px]
       ">
         <h1 className="text-3xl font-bold text-adrians-red text-center">Checkout</h1>
+        
+        {/* Temporizador */}
+        <div className="w-full bg-gray-100 p-4 rounded-lg shadow-sm">
+          <div className="flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-adrians-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-lg font-medium">
+              Tiempo restante para completar la reserva: {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+            </p>
+          </div>
+          <div className="w-full bg-gray-300 h-2 mt-2 rounded-full overflow-hidden">
+            <div 
+              className="bg-adrians-red h-full transition-all duration-1000 ease-linear" 
+              style={{ width: `${(timeRemaining / 600) * 100}%` }}
+            ></div>
+          </div>
+        </div>
         
         <div className="
           grid grid-cols-1 lg:grid-cols-2 gap-[60px] w-full
@@ -632,81 +679,93 @@ export function Checkout() {
                             fundingicons: true
                           }}
                           createOrder={(data, actions) => {
-                            // Validar nuevamente antes de crear la orden
-                            if (!formIsValid) {
-                              setPaypalError("First complete the billing information.");
-                              return Promise.reject(new Error("Incomplete billing information"));
+                            // Validación básica antes de crear la orden
+                            if (!firstName || !lastName || !email) {
+                              setPaypalError("Please fill at least your name and email before proceeding with payment");
+                              return Promise.reject(new Error("Please fill required fields"));
+                            }
+                            
+                            // Desaparecer el error si existía
+                            setPaypalError(null);
+                            setOrderProcessing(true);
+                            
+                            // Detener el temporizador cuando se inicia el proceso de pago
+                            if (timerRef.current) {
+                              clearInterval(timerRef.current);
                             }
                             
                             return actions.order.create({
-                              purchase_units: [
-                                {
-                                  description: "Adrian's Coffee Tour Booking",
-                                  amount: {
-                                    value: bookingData.total || "0.00",
-                                    currency_code: "USD",
-                                    breakdown: {
-                                      item_total: {
-                                        currency_code: "USD",
-                                        value: (parseFloat(bookingData.total) - parseFloat(bookingData.taxes || "0")).toFixed(2)
-                                      },
-                                      tax_total: {
-                                        currency_code: "USD",
-                                        value: bookingData.taxes || "0.00"
+                                purchase_units: [
+                                  {
+                                    description: "Adrian's Coffee Tour Booking",
+                                    amount: {
+                                      value: bookingData.total || "0.00",
+                                      currency_code: "USD",
+                                      breakdown: {
+                                        item_total: {
+                                          currency_code: "USD",
+                                          value: (parseFloat(bookingData.total) - parseFloat(bookingData.taxes || "0")).toFixed(2)
+                                        },
+                                        tax_total: {
+                                          currency_code: "USD",
+                                          value: bookingData.taxes || "0.00"
+                                        }
                                       }
+                                    },
+                                    items: [
+                                      {
+                                        name: "Coffee Tour",
+                                        description: `${bookingData.adults || "0"} adults${parseInt(bookingData.children) > 0 ? `, ${bookingData.children} children` : ""} (${bookingData.formattedDate || "N/A"}, ${bookingData.scheduleTime || "N/A"})`,
+                                        unit_amount: {
+                                          currency_code: "USD",
+                                          value: bookingData.adultPrice || "0.00"
+                                        },
+                                        quantity: bookingData.adults || "0",
+                                        category: "DIGITAL_GOODS"
+                                      },
+                                      ...(parseInt(bookingData.children) > 0 ? [{
+                                        name: "Coffee Tour - Child",
+                                        unit_amount: {
+                                          currency_code: "USD",
+                                          value: bookingData.childPrice || "0.00"
+                                        },
+                                        quantity: bookingData.children || "0",
+                                        category: "DIGITAL_GOODS"
+                                      }] : [])
+                                    ],
+                                    shipping: {
+                                      name: {
+                                        full_name: `${firstName} ${lastName}`.trim() || "Customer"
+                                      },
+                                      address: {
+                                        address_line_1: address || "",
+                                        admin_area_2: city || "",
+                                        admin_area_1: selectedState || "",
+                                        postal_code: zipCode || "",
+                                        country_code: selectedCountry || "US"
+                                      },
+                                      email_address: email || ""
                                     }
-                                  },
-                                  items: [
-                                    {
-                                      name: "Coffee Tour",
-                                      description: `${bookingData.adults || "0"} adults${parseInt(bookingData.children) > 0 ? `, ${bookingData.children} children` : ""} (${bookingData.formattedDate || "N/A"}, ${bookingData.scheduleTime || "N/A"})`,
-                                      unit_amount: {
-                                        currency_code: "USD",
-                                        value: bookingData.adultPrice || "0.00"
-                                      },
-                                      quantity: bookingData.adults || "0",
-                                      category: "DIGITAL_GOODS"
-                                    },
-                                    ...(parseInt(bookingData.children) > 0 ? [{
-                                      name: "Coffee Tour - Child",
-                                      unit_amount: {
-                                        currency_code: "USD",
-                                        value: bookingData.childPrice || "0.00"
-                                      },
-                                      quantity: bookingData.children || "0",
-                                      category: "DIGITAL_GOODS"
-                                    }] : [])
-                                  ],
-                                  shipping: {
-                                    name: {
-                                      full_name: `${firstName} ${lastName}`.trim() || "Customer"
-                                    },
-                                    address: {
-                                      address_line_1: address || "",
-                                      admin_area_2: city || "",
-                                      admin_area_1: selectedState || "",
-                                      postal_code: zipCode || "",
-                                      country_code: selectedCountry || "US"
-                                    },
-                                    email_address: email || ""
                                   }
+                                ],
+                                application_context: {
+                                  shipping_preference: "SET_PROVIDED_ADDRESS",
+                                  user_action: "PAY_NOW"
                                 }
-                              ],
-                              application_context: {
-                                shipping_preference: "SET_PROVIDED_ADDRESS",
-                                user_action: "PAY_NOW"
-                              }
-                            });
+                              });
                           }}
                           onApprove={(data, actions) => {
                             setOrderProcessing(true);
-                            return actions.order.capture().then((details) => {
+                            return actions.order.capture().then(function(details) {
+                              console.log("Payment completed", details);
                               setOrderProcessing(false);
+                              // Aquí se procesaría la lógica de guardar la reserva en la base de datos
+                              
+                              // Marcar la orden como completada y detener el temporizador
                               setOrderCompleted(true);
-                              // Aquí puede enviar los datos a su servidor para procesar la reserva
-                              console.log("Payment completed:", details);
-                              // También puede redirigir a una página de confirmación
-                              // navigate('/confirmation', { state: { orderDetails: details, bookingData } });
+                              if (timerRef.current) {
+                                clearInterval(timerRef.current);
+                              }
                             });
                           }}
                           onError={(err) => {
