@@ -192,7 +192,7 @@ export function Checkout() {
       
       <div className="
         flex flex-col justify-center items-center gap-[40px] 
-        w-[80vw] m-auto py-[40px] min-h-screen mt-[20px]
+        w-[80vw] m-auto py-[40px] min-h-screen mt-[100px]
         max-xl:w-[90vw] max-lg:mt-[60px]
       ">
         <h1 className="text-3xl font-bold text-adrians-red text-center">Checkout</h1>

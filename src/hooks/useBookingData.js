@@ -3,7 +3,6 @@ import axios from 'axios';
 
 export const useBookingData = () => {
   const apiUrl = import.meta.env.VITE_APP_API_URL;
-  const API_KEY = import.meta.env.VITE_API_KEY;
 
   // Data States
   const [data, setData] = useState([]);
