@@ -1,7 +1,7 @@
 
 export function Product( {title, description, color, reverse, justify, img} ) {
   return (
-    <div className={` flex w-[80vw] m-auto py-[40px] gap-[40px] max-xl:w-[90vw] max-md:flex-col max-sm:gap-[40px] ${reverse} `}>
+    <div className={`flex w-[80vw] m-auto py-[40px] gap-[40px] max-xl:w-[90vw] max-md:flex-col max-sm:gap-[40px] ${reverse} `}>
       {/* Content */}
       <div className="flex flex-col gap-[40px] w-[50%] justify-center items-start max-md:w-full">
         <div className="flex flex-col text-center items-start">

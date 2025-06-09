@@ -4,7 +4,6 @@ import { PageTitle } from "../components/shared/PageTitle.jsx";
 import { Origins } from "../components/about/Origins.jsx";
 import { Family } from "../components/about/Family.jsx";
 import { Company } from "../components/about/Company.jsx";
-import { Newsletter } from "../components/about/Newsletter.jsx";
 import { Footer } from "../components/shared/Footer.jsx";
 export function About() {
     useEffect(() => {
@@ -18,7 +17,6 @@ export function About() {
             <Origins />
             <Family />
             <Company />
-            <Newsletter />
             <Footer />
         </>
     )

@@ -17,11 +17,9 @@ export function Testimonials() {
     return (
         <div
             className="
-                flex w-[80vw] m-auto pt-[40px] pb-[180px] gap-[40px]
+                flex w-[80vw] m-auto gap-[40px]
                 max-xl:w-[90vw]
-                 max-lg:pb-[220px]
                 max-md:flex-col
-                max-sm:pb-[260px]
                 max-sm:gap-[40px]
             "
         >

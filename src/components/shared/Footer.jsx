@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Newsletter } from "./Newsletter";
 import { RiInstagramFill } from "react-icons/ri";
 import { FaFacebook, FaTiktok, FaYoutube} from "react-icons/fa";
 
@@ -11,7 +12,12 @@ export function Footer() {
         { name: "Contact", route: "/contact" },
     ]
     return (
-        <div className="flex flex-co items-center justify-center relative w-full py-[40px] bg-adrians-red">
+        <div className="flex flex-co items-center justify-center relative w-full mt-[160px] pt-[180px] pb-[20px] bg-adrians-red
+        max-lg:pt-[220px]
+        max-sm:pt-[260px]
+        ">
+            {/* Newletter */}
+            <Newsletter />
 
             {/* Content */}	
             <div className="flex flex-col gap-[40px] w-[90vw] m-auto justify-between items-center">
