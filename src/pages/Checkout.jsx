@@ -1,4 +1,5 @@
 import { Navbar } from "../components/shared/Navbar.jsx";
+import { Spinner } from "../components/shared/Spinner";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useBooking } from "../context/BookingContext";
@@ -34,7 +35,7 @@ export function Checkout() {
   const [availabilityErrorMessage, setAvailabilityErrorMessage] = useState("");
   
   // Estado para el temporizador de 10 minutos (600 segundos)
-  const [timeRemaining, setTimeRemaining] = useState(900); // 15 minutos en segundos
+  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutos en segundos
   const timerRef = useRef(null);
   
   // Estado para validar el formulario y controlar la visibilidad de la sección de pago
@@ -152,8 +153,15 @@ export function Checkout() {
   
   // Timer effect to manage the 15-minute countdown
   useEffect(() => {
-    // Start timer only if the order is not completed
+    // Iniciar temporizador siempre, independientemente del proceso de pago
+    // Solo se detiene cuando se completa la orden
     if (!orderCompleted) {
+      // Limpiar cualquier temporizador existente para evitar duplicados
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      
+      // Crear un nuevo temporizador que se ejecuta cada segundo
       timerRef.current = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
@@ -167,13 +175,41 @@ export function Checkout() {
           return prev - 1;
         });
       }, 1000);
+
+      // Asegurar que el temporizador continúe incluso durante modales o pagos
+      document.addEventListener('visibilitychange', handleVisibilityChange);
     }
 
-    // Clear interval when component unmounts
+    // Función para manejar cambios de visibilidad del documento
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        // Si el usuario cambia de pestaña, guardar el tiempo restante
+        clearInterval(timerRef.current);
+      } else {
+        // Al volver, reiniciar el temporizador con el tiempo restante
+        if (!orderCompleted) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          
+          timerRef.current = setInterval(() => {
+            setTimeRemaining(prev => {
+              if (prev <= 1) {
+                clearInterval(timerRef.current);
+                navigate('/');
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+      }
+    }
+
+    // Clear interval and event listeners when component unmounts
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [navigate, orderCompleted]);
   
@@ -317,9 +353,7 @@ export function Checkout() {
     return (
       <>
         <Navbar />
-        <div className="min-h-[80vh] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-adrians-red"></div>
-        </div>
+        <Spinner />
       </>
     );
   }
@@ -840,10 +874,8 @@ export function Checkout() {
                               // Desaparecer el error si existía
                               setPaypalError(null);
                               
-                              // Detener el temporizador cuando se inicia el proceso de pago
-                              if (timerRef.current) {
-                                clearInterval(timerRef.current);
-                              }
+                              // Asegurar que el temporizador continúe durante el proceso de pago
+                              // No detener el temporizador en este punto
                               
                               return actions.order.create({
                                 purchase_units: [

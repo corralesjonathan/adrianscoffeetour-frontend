@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Spinner } from "./shared/Spinner";
 
 /**
  * Flexible feedback modal for success, error, or loading messages
@@ -20,6 +21,12 @@ export function FeedbackModal({
   onClose,
   showCountdown = true 
 }) {
+  // Si está en modo loading, mostrar solo el spinner a pantalla completa
+  if (isLoading) {
+    return <Spinner />;
+  }
+  
+  // Para éxito o error, mostrar el modal normal
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-[9999]">
       <motion.div 
@@ -29,20 +36,9 @@ export function FeedbackModal({
         className="bg-white rounded-[20px] p-8 shadow-2xl max-w-md w-full mx-4 text-center"
       >
         <div className={`mx-auto w-20 h-20 mb-6 flex items-center justify-center rounded-full ${
-          isLoading ? 'bg-blue-100' : isSuccess ? 'bg-green-100' : 'bg-red-100'
+          isSuccess ? 'bg-green-100' : 'bg-red-100'
         }`}>
-          {isLoading ? (
-            // Spinner for loading state
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity, 
-                ease: "linear" 
-              }}
-              className="w-12 h-12 border-t-3 border-b-3 border-adrians-red rounded-full"
-            />
-          ) : isSuccess ? (
+          {isSuccess ? (
             // Check icon for success
             <motion.svg
               initial={{ pathLength: 0 }}
@@ -80,9 +76,7 @@ export function FeedbackModal({
             </motion.svg>
           )}
         </div>
-        <h2 className={`text-2xl font-bold ${
-          isLoading ? 'text-adrians-brown' : isSuccess ? 'text-adrians-brown' : 'text-adrians-red'
-        } mb-4`}>{title}</h2>
+        <h2 className={`text-2xl font-bold ${isSuccess ? 'text-adrians-brown' : 'text-adrians-red'} mb-4`}>{title}</h2>
         <p className="text-adrians-brown mb-8">{message}</p>
         {showCountdown && !isLoading && (
           <p className="text-sm text-adrians-brown/70">Returning to home in {countdown} seconds...</p>

@@ -11,6 +11,7 @@ import { Contact } from './pages/Contact.jsx';
 import { Checkout } from './pages/Checkout.jsx';
 import { UnderConstruction } from './pages/UnderConstruction.jsx';
 import { ScrollToTop } from './components/shared/ScrollToTop.jsx';
+import { BackToTopButton } from './components/shared/BackToTopButton.jsx';
 import { FloatingWhatsApp } from 'react-floating-whatsapp'
 import { BookingProvider } from './context/BookingContext'
 
@@ -26,6 +27,7 @@ function App() {
     <BookingProvider>
       <Router>
         <ScrollToTop />
+        <BackToTopButton />
         <FloatingWhatsApp accountName='Adrians Coffee Tour' phoneNumber='50688624063' statusMessage='Typically replies within 30 minutes' chatMessage='Hello, how can we help?' allowEsc allowClickAway avatar='./icons/wa_profile.svg'/> 
         <Routes>
           <Route path="/under-construction" element={<UnderConstruction />} />
