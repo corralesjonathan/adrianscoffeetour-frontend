@@ -407,7 +407,7 @@ export function Checkout() {
           <div className="w-[80%] bg-gray-200 h-[5px] rounded-full overflow-hidden">
             <div 
               className="bg-adrians-red h-full transition-all duration-1000 ease-linear" 
-              style={{ width: `${(timeRemaining / 900) * 100}%` }}
+              style={{ width: `${(timeRemaining / 600) * 100}%` }}
             ></div>
           </div>
         </div>
