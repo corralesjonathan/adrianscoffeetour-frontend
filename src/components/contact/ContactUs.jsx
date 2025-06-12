@@ -8,6 +8,7 @@ export function ContactUs() {
       {/* Content */}
       <div className="flex flex-col gap-[40px] w-[50%] justify-center items-start max-md:w-full">
         <SectionTitle text="Contact Us" position={"items-start"} />
+        {/* Text */}
         <div
           data-aos="fade-up"
           data-aos-once="true"
@@ -20,16 +21,16 @@ export function ContactUs() {
           {/* Phone */}
           <div className="flex gap-[16px] items-center">
             <img className="w-[30px]" src="./icons/phone.svg" alt="Phone" />
-            <p className="text-[16px] font-regular text-adrians-brown">
-              +506 8877 - 6655
-            </p>
+            <a href="tel:+50624478174" className="text-[16px] font-regular text-adrians-brown">
+              +506 2447-8174
+            </a>
           </div>
           {/* Email */}
           <div className="flex gap-[16px] items-center">
             <img className="w-[30px]" src="./icons/email.svg" alt="Email" />
-            <p className="text-[16px] font-regular text-adrians-brown">
-              info@adrianscoffeetour.com
-            </p>
+            <a href="mailto:contact@adrianscoffeetour.com" className="text-[16px] font-regular text-adrians-brown">
+              contact@adrianscoffeetour.com
+            </a>
           </div>
           {/* Location */}
           <div className="flex gap-[16px] items-center">
