@@ -3,9 +3,19 @@ import { Book_btn } from "../navigation/Book_btn";
 import features from "../../data/features";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export function Info() {
   const [hoveredFeature, setHoveredFeature] = useState(null);
+  const navigate = useNavigate();
+  
+  /**
+   * Navigate to homepage
+   */
+  const handleBookNowClick = () => {
+    // Navigate to homepage
+    navigate('/');
+  };
 
   return (
     <div className="flex w-[80vw] m-auto py-[40px] gap-[40px] max-xl:w-[90vw] max-md:flex-col max-sm:gap-[40px]">
@@ -35,7 +45,7 @@ export function Info() {
           data-aos-duration="1000"
           data-aos-delay="600"
         >
-          <Book_btn text="Book Now" onClick={""} />
+          <Book_btn text="Book Now" onClick={handleBookNowClick} />
         </div>
       </div>
 
