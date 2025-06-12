@@ -87,7 +87,7 @@ export function Form() {
       
       // POST request to submit contact form
       const response = await axios.post(
-        `${apiUrl}/contact`,
+        `${apiUrl}/contacts`,
         formData,
         { headers }
       );
