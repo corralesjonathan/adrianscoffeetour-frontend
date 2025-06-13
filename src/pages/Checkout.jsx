@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SuccessModal } from "../components/SuccessModal";
 import { FeedbackModal } from "../components/FeedbackModal";
 import { Countdown } from "../components/checkout/Countdown";
+import { BookingDetails } from "../components/checkout/BookingDetails";
 import { checkAvailabilityStatus } from "../services/availabilityService.js";
 import { 
   getAllCountries,
@@ -708,42 +709,11 @@ export function Checkout() {
             data-aos-delay="200"
             data-aos-once="true"
           >
-            <div>
-              <h2 className="text-xl font-semibold text-adrians-red mb-6">Booking Details</h2>
-              
-              <div className="bg-adrians-red/5 rounded-[15px] p-6">
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-adrians-brown mb-2">
-                      <span className="font-medium">Date:</span> {bookingData.formattedDate || "Not available"}
-                    </p>
-                    <p className="text-adrians-brown mb-2">
-                      <span className="font-medium">Schedule:</span> {bookingData.scheduleTime || "Not specified"}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-adrians-brown mb-2">
-                      <span className="font-medium">Adults:</span> {bookingData.adults || "0"}x${bookingData.adultPrice || "0"}
-                    </p>
-                    {parseInt(bookingData.children) > 0 && (
-                      <p className="text-adrians-brown mb-2">
-                        <span className="font-medium">Children:</span> {bookingData.children}x${bookingData.childPrice || "0"}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="border-t border-adrians-red/20 mt-4 pt-4">
-                  <p className="text-adrians-brown mb-1">
-                    <span className="font-medium">Taxes:</span> ${bookingData.taxes || "0.00"}
-                  </p>
-                  <p className="text-xl font-semibold text-adrians-red">
-                    <span className="font-bold">Total:</span> ${bookingData.total || "0.00"}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <BookingDetails 
+              bookingData={bookingData}
+              showTitle={true}
+              className="w-full"
+            />
 
             {/* Sección de pago (condicionalmente renderizada) */}
             <AnimatePresence>
