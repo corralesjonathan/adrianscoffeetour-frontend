@@ -8,6 +8,7 @@ import paypalConfig from "../config/paypalConfig.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { SuccessModal } from "../components/SuccessModal";
 import { FeedbackModal } from "../components/FeedbackModal";
+import { Countdown } from "../components/checkout/Countdown";
 import { checkAvailabilityStatus } from "../services/availabilityService.js";
 import { 
   getAllCountries,
@@ -34,9 +35,8 @@ export function Checkout() {
   const [showAvailabilityError, setShowAvailabilityError] = useState(false);
   const [availabilityErrorMessage, setAvailabilityErrorMessage] = useState("");
   
-  // Estado para el temporizador de 10 minutos (600 segundos)
-  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutos en segundos
-  const timerRef = useRef(null);
+  // Countdown configuration
+  const RESERVATION_TIMEOUT = 600; // 10 minutes
   
   // Estado para validar el formulario y controlar la visibilidad de la sección de pago
   const [formIsValid, setFormIsValid] = useState(false);
@@ -151,67 +151,13 @@ export function Checkout() {
     };
   }, [bookingData, navigate]);
   
-  // Timer effect to manage the 15-minute countdown
-  useEffect(() => {
-    // Iniciar temporizador siempre, independientemente del proceso de pago
-    // Solo se detiene cuando se completa la orden
+  // Function to handle countdown expiration
+  const handleCountdownExpire = () => {
+    // Only redirect if the order is not completed
     if (!orderCompleted) {
-      // Limpiar cualquier temporizador existente para evitar duplicados
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      
-      // Crear un nuevo temporizador que se ejecuta cada segundo
-      timerRef.current = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            // When time reaches zero, clear the interval
-            clearInterval(timerRef.current);
-            
-            // Redirect to home when timer expires
-            navigate('/');
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      // Asegurar que el temporizador continúe incluso durante modales o pagos
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+      navigate('/');
     }
-
-    // Función para manejar cambios de visibilidad del documento
-    function handleVisibilityChange() {
-      if (document.hidden) {
-        // Si el usuario cambia de pestaña, guardar el tiempo restante
-        clearInterval(timerRef.current);
-      } else {
-        // Al volver, reiniciar el temporizador con el tiempo restante
-        if (!orderCompleted) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          
-          timerRef.current = setInterval(() => {
-            setTimeRemaining(prev => {
-              if (prev <= 1) {
-                clearInterval(timerRef.current);
-                navigate('/');
-                return 0;
-              }
-              return prev - 1;
-            });
-          }, 1000);
-        }
-      }
-    }
-
-    // Clear interval and event listeners when component unmounts
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [navigate, orderCompleted]);
+  };
   
   // Función para verificar si el formulario está completo
   const validateForm = () => {
@@ -394,22 +340,15 @@ export function Checkout() {
       ">
         <h1 className="text-3xl font-bold text-adrians-red text-center">Checkout</h1>
         
-        {/* Temporizador */}
+        {/* Reservation Countdown Timer */}
         <div className="w-full p-4 flex flex-col items-center justify-center gap-[20px]">
-          <div className="flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-adrians-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-lg font-medium">
-              Time Remaining  : {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
-            </p>
-          </div>
-          <div className="w-[80%] bg-gray-200 h-[5px] rounded-full overflow-hidden">
-            <div 
-              className="bg-adrians-red h-full transition-all duration-1000 ease-linear" 
-              style={{ width: `${(timeRemaining / 600) * 100}%` }}
-            ></div>
-          </div>
+          <Countdown 
+            initialSeconds={RESERVATION_TIMEOUT}
+            onExpire={handleCountdownExpire}
+            showTitle={true}
+            showProgressBar={true}
+            className="w-full flex flex-col items-center justify-center gap-3"
+          />
         </div>
         
         <div className="
