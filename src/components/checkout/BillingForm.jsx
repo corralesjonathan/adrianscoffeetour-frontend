@@ -22,6 +22,7 @@ export function BillingForm({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
@@ -33,15 +34,34 @@ export function BillingForm({
   const [selectedState, setSelectedState] = useState("");
   
   /**
+   * Validates email format using regex
+   * @param {string} email - Email address to validate
+   * @returns {boolean} True if email format is valid
+   */
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+  /**
    * Validates form fields
    * @returns {boolean} True if the form is valid
    */
   const validateForm = () => {
+    // Email validation
+    if (email.trim() !== '' && !validateEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      return false;
+    } else {
+      setEmailError("");
+    }
+    
     // Validate that all required fields are completed
     return (
       firstName.trim() !== '' &&
       lastName.trim() !== '' &&
       email.trim() !== '' &&
+      validateEmail(email) &&
       phone.trim() !== '' &&
       address.trim() !== '' &&
       city.trim() !== '' &&
@@ -128,11 +148,28 @@ export function BillingForm({
           <input 
             type="email" 
             id="email"
-            className="w-full p-3 border border-adrians-brown/30 rounded-full focus:outline-none focus:ring-2 focus:ring-adrians-red focus:border-transparent transition-all duration-300"
+            className={`w-full p-3 border ${emailError ? 'border-red-500' : 'border-adrians-brown/30'} rounded-full focus:outline-none focus:ring-2 ${emailError ? 'focus:ring-red-500' : 'focus:ring-adrians-red'} focus:border-transparent transition-all duration-300`}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (e.target.value.trim() !== '' && !validateEmail(e.target.value)) {
+                setEmailError("Please enter a valid email address");
+              } else {
+                setEmailError("");
+              }
+            }}
+            onBlur={() => {
+              if (email.trim() !== '' && !validateEmail(email)) {
+                setEmailError("Please enter a valid email address");
+              } else {
+                setEmailError("");
+              }
+            }}
             data-testid="billing-email"
           />
+          {emailError && (
+            <p className="text-red-500 text-sm mt-1">{emailError}</p>
+          )}
         </div>
         
         {/* Phone field with country code selector */}

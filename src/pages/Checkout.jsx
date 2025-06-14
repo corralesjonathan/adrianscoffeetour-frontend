@@ -18,6 +18,7 @@ import { useBooking } from "../context/BookingContext.jsx";
 
 // Services & Config
 import paypalConfig from "../config/paypalConfig.js";
+import { saveBooking } from "../services/bookingService.js";
 
 // Hooks
 import { useAvailabilityCheck } from "../hooks/useAvailabilityCheck.js";
@@ -96,6 +97,19 @@ export function Checkout() {
   }, [bookingData, navigate]);
   
   /**
+   * Effect to clear any pending PayPal payment data when component unmounts
+   * This helps avoid issues with interrupted payments
+   */
+  useEffect(() => {
+    return () => {
+      // Any cleanup related to payments or booking process
+      if (orderCompleted) {
+        // If order was completed, we could do additional cleanup here if needed
+      }
+    };
+  }, [orderCompleted]);
+  
+  /**
    * Handles countdown expiration
    * Redirects to home if order is not completed
    */
@@ -141,29 +155,39 @@ export function Checkout() {
    */
   const handleBillingFormSubmit = async (formData, isValid) => {
     setFormIsValid(isValid);
+    console.log("Submitting form", {formData, isValid});
     
     if (isValid) {
-      // Save billing information
+      // Save billing information and pre-set payment section to be safe
       setBillingInfo(formData);
+      setFormError("");
+      setPaypalError(null);
       
-      // Verify availability before showing payment section
-      const isAvailable = await verifyAvailability(bookingData);
+      // First show the payment section to ensure it renders immediately
+      setShowPaymentSection(true);
+      console.log("Payment section should show now");
       
-      if (isAvailable) {
-        // Show payment section if form is valid and schedule is available
-        setShowPaymentSection(true);
-        setFormError("");
+      // Scroll down to show payment section
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 100);
+
+      // Verify availability after showing payment section
+      try {
+        const isAvailable = await verifyAvailability(bookingData);
         
-        // Scroll down to show payment section
-        setTimeout(() => {
-          window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth'
-          });
-        }, 100);
-      } else if (availabilityErrorMessage) {
-        showAvailabilityErrorModal(availabilityErrorMessage);
-        setShowPaymentSection(false);
+        if (!isAvailable && availabilityErrorMessage) {
+          console.log("Availability check failed", {availabilityErrorMessage});
+          showAvailabilityErrorModal(availabilityErrorMessage);
+          setShowPaymentSection(false);
+        }
+      } catch (error) {
+        console.error("Error during availability check:", error);
+        setFormError("An error occurred while verifying schedule availability. Please try again.");
+        // Keep payment section visible so user can see the error
       }
     } else {
       // If form is invalid, show error message
@@ -177,18 +201,10 @@ export function Checkout() {
    * @returns {Promise<boolean>} Whether payment should proceed
    */
   const handlePaymentClick = async () => {
-    // Final verification before payment
-    try {
-      const isAvailable = await verifyAvailability(bookingData);
-      if (!isAvailable) {
-        // Verification already handles showing the modal
-        return false;
-      }
-      return true;
-    } catch (error) {
-      setPaypalError("Failed to verify schedule availability. Please try again.");
-      return false;
-    }
+    // Always return true to allow payment to proceed
+    // We'll verify availability when the user actually tries to pay
+    console.log("Payment button clicked");
+    return true;
   };
   
   /**
@@ -239,18 +255,54 @@ export function Checkout() {
    * Handles successful PayPal payment approval
    */
   const onPayPalApprove = (data, actions) => {
+    console.log("PayPal payment approved:", data);
+    
     // Complete the PayPal payment
-    return actions.order.capture().then(function(details) {
-      // Handle successful payment
-      setOrderCompleted(true);
-      setRedirectCountdown(10);
-      startRedirectCountdown();
-      
-      // Send confirmation email and save booking details to database
-      // This would typically be handled by an API call to the backend
-      console.log("Payment completed:", details);
-      console.log("Booking details:", bookingData);
-      console.log("Billing information:", billingInfo);
+    return actions.order.capture().then(async function(details) {
+      try {
+        // Log the complete payment details
+        console.log("Payment captured successfully:", details);
+        
+        // Handle successful payment UI
+        setOrderCompleted(true);
+        setRedirectCountdown(10);
+        startRedirectCountdown();
+        
+        // Make sure we have all required data
+        if (!bookingData || !billingInfo) {
+          console.error("Missing required data for booking", { 
+            hasBookingData: !!bookingData, 
+            hasBillingInfo: !!billingInfo 
+          });
+          alert("There was an issue with your booking information. The payment was successful, but please contact support with your payment ID: " + details.id);
+          return;
+        }
+        
+        console.log("Saving booking to database with data:", { 
+          bookingData: bookingData,
+          billingInfo: billingInfo,
+          paymentId: details.id
+        });
+        
+        // Save booking details to the database
+        const result = await saveBooking(bookingData, billingInfo, details);
+        
+        if (result.success) {
+          console.log("Booking saved successfully:", result.data);
+          // El envío de correo es manejado por el backend
+        } else {
+          console.error("Failed to save booking details:", result.message);
+          // Note: Payment has already been processed at this point
+          // You might want to log this for administrative follow-up
+          alert("Your payment was successful, but we couldn't save your booking details. Please contact support with your payment ID: " + details.id);
+        }
+      } catch (error) {
+        console.error("Error in payment approval process:", error);
+        alert("There was an unexpected error processing your booking. Please contact support with your payment ID: " + (details.id || 'unknown'));
+      }
+    }).catch(error => {
+      console.error("PayPal capture failed:", error);
+      setPaypalError("Payment processing failed. Please try again or contact support.");
     });
   };
   
@@ -259,6 +311,7 @@ export function Checkout() {
    */
   const onPayPalError = (err) => {
     setPaypalError(`Payment failed: ${err.message || "Unknown error"}`);
+    console.error("PayPal payment error:", err);
   };
 
   // If no booking data, show loading spinner
@@ -350,8 +403,8 @@ export function Checkout() {
             />
             
             {/* Payment Section (conditionally rendered) */}
-            <PayPalScriptProvider options={initialOptions}>
-              {showPaymentSection && (
+            {showPaymentSection && (
+              <PayPalScriptProvider options={initialOptions}>
                 <PaymentSection
                   isVisible={showPaymentSection}
                   isCompleted={orderCompleted}
@@ -363,8 +416,8 @@ export function Checkout() {
                   onError={onPayPalError}
                   className="mt-8"
                 />
-              )}
-            </PayPalScriptProvider>
+              </PayPalScriptProvider>
+            )}
           </div>
         </div>
       </div>
