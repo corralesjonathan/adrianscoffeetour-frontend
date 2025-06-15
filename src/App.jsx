@@ -10,6 +10,7 @@ import { Products } from './pages/Products.jsx';
 import { Contact } from './pages/Contact.jsx';
 import { Checkout } from './pages/Checkout.jsx';
 import { UnderConstruction } from './pages/UnderConstruction.jsx';
+import { Admin } from './pages/Admin.jsx';
 import { ScrollToTop } from './components/shared/ScrollToTop.jsx';
 import { BackToTopButton } from './components/shared/BackToTopButton.jsx';
 import { FloatingWhatsApp } from 'react-floating-whatsapp'
@@ -37,6 +38,7 @@ function App() {
           <Route path="/products" element={<Products />} /> 
           <Route path="/contact" element={<Contact />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </Router>
     </BookingProvider>
