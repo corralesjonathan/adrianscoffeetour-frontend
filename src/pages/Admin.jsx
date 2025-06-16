@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Login } from '../components/admin/Login';
-import { login, isLoggedIn, logout } from '../services/authService';
+import { login, isLoggedIn, logout, isTokenExpired } from '../services/authService';
+import { getContacts } from '../services/contactsService';
 import { getUserProfile } from '../services/profileService';
+import { SessionExpiredModal } from '../components/admin/modals/SessionExpiredModal';
 
 /**
  * Admin Page Component
@@ -18,9 +20,37 @@ export const Admin = () => {
   const [error, setError] = useState('');
   const [userProfile, setUserProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [contacts, setContacts] = useState([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactsError, setContactsError] = useState('');
+  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
   const navigate = useNavigate();
 
   // Check authentication status on component mount
+  // Efecto para escuchar el evento de sesión expirada (desde interceptor Axios)
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      setShowSessionExpiredModal(true);
+      setAuthenticated(false);
+    };
+    
+    // Añadir listener para el evento de sesión expirada
+    window.addEventListener('session-expired', handleSessionExpired);
+    
+    // Implementar verificación periódica de la expiración del token cada 30 segundos
+    const tokenCheckInterval = setInterval(() => {
+      if (isTokenExpired() && !showSessionExpiredModal) {
+        handleSessionExpired();
+      }
+    }, 30000);
+    
+    // Limpiar listener y timer
+    return () => {
+      window.removeEventListener('session-expired', handleSessionExpired);
+      clearInterval(tokenCheckInterval);
+    };
+  }, [showSessionExpiredModal]);
+
   useEffect(() => {
     const checkAuth = async () => {
       const loggedIn = isLoggedIn();
@@ -53,6 +83,9 @@ export const Admin = () => {
         } finally {
           setProfileLoading(false);
         }
+        
+        // Fetch contacts if authenticated
+        fetchContacts();
       }
       
       setLoading(false);
@@ -60,6 +93,30 @@ export const Admin = () => {
     
     checkAuth();
   }, []);
+  
+  /**
+   * Fetches contacts data from API
+   */
+  const fetchContacts = async () => {
+    setContactsLoading(true);
+    setContactsError('');
+    
+    try {
+      const contactsResponse = await getContacts();
+      console.log('Contacts response:', contactsResponse);
+      
+      if (contactsResponse.success && contactsResponse.data) {
+        setContacts(Array.isArray(contactsResponse.data) ? contactsResponse.data : 
+                   (contactsResponse.data.contacts ? contactsResponse.data.contacts : []));
+      } else {
+        setContactsError(contactsResponse.message || 'Could not load contacts');
+      }
+    } catch (err) {
+      setContactsError('An error occurred while fetching contacts');
+    } finally {
+      setContactsLoading(false);
+    }
+  };
 
   /**
    * Handles user logout
@@ -71,12 +128,9 @@ export const Admin = () => {
       if (result.success) {
         setAuthenticated(false);
       } else {
-        console.error('Logout failed:', result.message);
-        // Still set authenticated to false to force logout on frontend
         setAuthenticated(false);
       }
     } catch (err) {
-      console.error('Error during logout:', err);
       // Force logout on frontend even if API call fails
       setAuthenticated(false);
     } finally {
@@ -197,15 +251,87 @@ export const Admin = () => {
           <div>
             <h2 className="text-xl font-semibold mb-4">Dashboard</h2>
             <p className="mb-4">Welcome to the admin panel!</p>
-            <p>You can manage your coffee tour content here.</p>
+            <p className="mb-6">You can manage your coffee tour content here.</p>
+            
+            {/* Contacts Section */}
+            <div className="mt-8 border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4">Contacts</h3>
+              
+              {contactsLoading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-adrians-red"></div>
+                  <span>Loading contacts...</span>
+                </div>
+              ) : contactsError ? (
+                <div className="text-red-500">{contactsError}</div>
+              ) : contacts.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white">
+                    <thead>
+                      <tr className="bg-gray-100 text-gray-600 text-sm leading-normal">
+                        <th className="py-3 px-6 text-left">Name</th>
+                        <th className="py-3 px-6 text-left">Email</th>
+                        <th className="py-3 px-6 text-left">Message</th>
+                        <th className="py-3 px-6 text-left">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-600 text-sm">
+                      {contacts.map((contact, index) => (
+                        <tr key={contact.id || index} className="border-b border-gray-200 hover:bg-gray-50">
+                          <td className="py-3 px-6">{contact.name || 'N/A'}</td>
+                          <td className="py-3 px-6">{contact.email || 'N/A'}</td>
+                          <td className="py-3 px-6">
+                            <div className="max-w-xs truncate">{contact.message || 'N/A'}</div>
+                          </td>
+                          <td className="py-3 px-6">
+                            {new Date(contact.created_at).toLocaleDateString(
+                              "en-US", {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p>No contacts found</p>
+              )}
+              
+              {!contactsLoading && !contactsError && (
+                <button 
+                  onClick={fetchContacts}
+                  className="mt-4 px-4 py-2 bg-adrians-red text-white rounded-md hover:bg-adrians-red/90 transition-all duration-300"
+                >
+                  Refresh Contacts
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  // Handle session expired modal close
+  const handleSessionExpiredModalClose = () => {
+    setShowSessionExpiredModal(false);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    navigate('/admin'); // Redirige a la página de login
+  };
+
   // Show login screen if not authenticated
   return (
-    <Login onSubmit={handleLogin} error={error} />
+    <>
+      <Login onSubmit={handleLogin} error={error} />
+      <SessionExpiredModal 
+        show={showSessionExpiredModal} 
+        onClose={handleSessionExpiredModalClose} 
+      />
+    </>
   );
 }

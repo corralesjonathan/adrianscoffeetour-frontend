@@ -1,5 +1,21 @@
 import axios from 'axios';
 
+// Configuración del interceptor para manejar errores 401
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    // Si recibimos error 401 Unauthorized, podría ser debido a un token expirado
+    if (error.response && error.response.status === 401) {
+      // Disparar un evento para que los componentes puedan reaccionar
+      // (ej. mostrar el modal de sesión expirada)
+      const event = new CustomEvent('session-expired');
+      window.dispatchEvent(event);
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 /**
  * Authentication Service
  * 
@@ -106,8 +122,6 @@ export const logout = async () => {
       'Content-Type': 'application/json'
     };
     
-    console.log('Sending logout request to API:', `${apiUrl}/auth/logout`);
-    
     // Call logout API endpoint
     await axios.post(
       `${apiUrl}/auth/logout`,
@@ -139,13 +153,47 @@ export const logout = async () => {
 };
 
 /**
+ * Verifica si el token JWT ha expirado
+ * 
+ * @returns {boolean} True si el token ha expirado
+ */
+export const isTokenExpired = () => {
+  const token = localStorage.getItem('authToken');
+  
+  if (!token) return true;
+  
+  try {
+    // Obtener la parte de payload del token (segunda parte)
+    const payload = token.split('.')[1];
+    // Decodificar el payload base64
+    const decodedPayload = JSON.parse(atob(payload));
+    // El campo exp del JWT contiene el timestamp de expiración en segundos
+    const expTime = decodedPayload.exp * 1000; // Convertir a milisegundos
+    
+    // Comparar con la hora actual
+    return Date.now() >= expTime;
+  } catch (error) {
+    // Si hay algún error al decodificar, asumir que el token es inválido
+    return true;
+  }
+};
+
+/**
  * Checks if the user is currently logged in
  * 
  * @returns {boolean} True if user is logged in
  */
 export const isLoggedIn = () => {
   const token = localStorage.getItem('authToken');
-  return !!token;
+  if (!token) return false;
+  
+  // Si el token ha expirado, cerrar sesión automáticamente
+  if (isTokenExpired()) {
+    // No eliminamos el token aquí para permitir que la app muestre el modal de expiración
+    return false;
+  }
+  
+  return true;
 };
 
 /**
@@ -162,8 +210,6 @@ export const getCurrentUser = () => {
     return null;
   }
 };
-
-
 
 /**
  * Gets the authentication token for API requests
